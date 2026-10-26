@@ -1,32 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-    // Инициализация Telegram WebApp
-    window.Telegram.WebApp.ready();
-    
-    // Список разрешенных Telegram ID (ты + твои друзья)
-    const ALLOWED_IDS = [
-        5188446459, // Твой ID
-        730060737,  // Друг 1
-        1291659239, // Друг 2
-        607855901   // Друг 3
-    ];
-
-    // Получаем ID пользователя, который открыл приложение
-    const user = window.Telegram.WebApp.initDataUnsafe?.user;
-
-    // Проверка: если пользователя нет в списке разрешенных, блокируем доступ
-    if (!user || !ALLOWED_IDS.includes(user.id)) {
-        document.body.innerHTML = `
-            <div style="background-color: #0d0d0d; color: #ff3333; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; text-align: center; padding: 20px;">
-                <h1 style="font-size: 24px; margin-bottom: 10px;">🔒 ACCESS DENIED</h1>
-                <p style="color: #888;">Ares Gym is a private secure dashboard.</p>
-            </div>
-        `;
-    }
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0b">
@@ -34,6 +8,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <title>ARES GYM — Программы тренировок</title>
 <link rel="manifest" href="manifest.json">
+<!-- Telegram Mini App SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 document.documentElement.classList.add('js');
 setTimeout(function(){ if(!window.__aresReady) document.documentElement.classList.add('nojs-ok'); }, 3000);
@@ -296,7 +272,6 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .sup-base{margin-top:14px;border:1px dashed var(--line2);padding:14px 18px;display:flex;gap:12px;align-items:center;font:600 11.5px var(--fm);letter-spacing:.1em;color:var(--silver);text-transform:uppercase}
 .sup-base i{color:var(--red-hi);font-size:16px;flex:none}
 
-/* ============ ПИТАНИЕ ============ */
 .nut-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .nut-tabs .gy-chip{padding:12px 20px;font-size:12px}
 .nut-wrap{border:1px solid var(--line2);background:var(--panel);padding:20px 22px 22px}
@@ -950,7 +925,6 @@ footer{background:var(--bg2)}
     </div>
   </section>
 
-  <!-- ============ ПИТАНИЕ ============ -->
   <section id="nutrition">
     <div class="container">
       <header class="sec-head" data-reveal>
@@ -1139,6 +1113,7 @@ footer{background:var(--bg2)}
     <pre class="rp-pre" id="reportText"></pre>
     <footer class="rp-foot">
       <button class="btn-fin" id="repCopy"><i class="ri-file-copy-line"></i> СКОПИРОВАТЬ ВСЁ</button>
+      <button class="gy-ghost" id="repSendTG"><i class="ri-telegram-fill"></i> В TELEGRAM</button>
       <button class="gy-ghost" id="repClose2">ЗАКРЫТЬ</button>
     </footer>
   </div>
@@ -1185,6 +1160,15 @@ footer{background:var(--bg2)}
       <button class="btn-fin" id="plSave"><i class="ri-save-3-line"></i> СОХРАНИТЬ ПЛАН</button>
       <button class="gy-ghost" id="plCancel">ОТМЕНА</button>
     </footer>
+  </div>
+</div>
+
+<div class="report" id="gateModal" role="dialog" aria-modal="true" aria-label="Доступ">
+  <div class="rp-box" style="width:min(520px,100%)">
+    <header class="rp-head">
+      <span class="rp-title">ARES GYM · ДОСТУП</span>
+    </header>
+    <div class="dat-body" id="gateBody"></div>
   </div>
 </div>
 
@@ -1795,7 +1779,8 @@ function refreshLock() {
              $('#gym').classList.contains('open') ||
              reportEl.classList.contains('open') ||
              dataEl.classList.contains('open') ||
-             planEl.classList.contains('open');
+             planEl.classList.contains('open') ||
+             $('#gateModal').classList.contains('open');
   document.documentElement.classList.toggle('no-scroll', on);
 }
 function openReport(pid) {
@@ -2358,7 +2343,7 @@ function copyText(text, label) {
 
  $('#toTop').addEventListener('click', () => scrollTo({ top: 0, behavior: PRM ? 'auto' : 'smooth' }));
 
-/* ================= PWA (офлайн; установка — через меню Chrome) ================= */
+/* ================= PWA (офлайн) ================= */
 (function initPWA() {
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
@@ -2368,6 +2353,85 @@ function copyText(text, label) {
 /* подсказка, если хранение закрыто */
 if (!LS_OK) setTimeout(() =>
   toast('Хранение закрыто (предпросмотр). Прогресс переживёт перезакрытие только через код «ДАННЫЕ · БЭКАП».', 'ri-database-2-line'), 2600);
+
+/* ================= MINI APP: доступ + отправка отчёта =================
+   Адрес воркера Cloudflare. Если в дашборде он другой — поправь здесь. */
+const BOT_API = 'https://ares-gym-bot.maks222berg.workers.dev';
+const TG_SESSION = { mode: null, initData: null, name: null };
+
+(function initGate() {
+  const wa = window.Telegram && window.Telegram.WebApp;
+  if (wa) { try { wa.ready(); wa.expand(); } catch (e) {} }
+  const gate = $('#gateModal'), body = $('#gateBody');
+  const show = html => { body.innerHTML = html; gate.classList.add('open'); refreshLock(); };
+  const hide = () => { gate.classList.remove('open'); refreshLock(); };
+
+  function denyScreen() {
+    show(`
+      <span class="dat-label">ДОСТУП ЗАКРЫТ</span>
+      <p class="dat-p">ARES GYM — клуб по приглашению. Открой бота и нажми <b>/start</b> — владелец получит твой ID и откроет доступ.</p>
+      <a class="btn-fin" href="https://t.me/AresGYM_app" target="_blank" rel="noopener" style="justify-content:center"><i class="ri-telegram-fill"></i> ОТКРЫТЬ БОТА</a>`);
+  }
+  function codeScreen(err) {
+    show(`
+      <span class="dat-label">КОД ДОСТУПА</span>
+      <p class="dat-p">Сайт открыт вне Telegram — введи код доступа. Один раз, запомнится.</p>
+      <input class="dat-in" id="gateCode" autocomplete="off" placeholder="код" spellcheck="false">
+      ${err ? '<span class="dat-warn" style="color:var(--red-hi)">Неверный код — попробуй ещё.</span>' : ''}
+      <div class="dat-actions"><button class="btn-fin" id="gateOk"><i class="ri-check-line"></i> ВОЙТИ</button></div>`);
+    $('#gateOk').addEventListener('click', async () => {
+      const code = $('#gateCode').value.trim(); if (!code) return;
+      try {
+        const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+        if (r.ok) {
+          localStorage.setItem('ARES_TG_OK_V1', 'code');
+          localStorage.setItem('ARES_CODE_V1', code);
+          TG_SESSION.mode = 'code';
+          hide(); toast('Доступ открыт.', 'ri-checkbox-circle-fill');
+        } else codeScreen(true);
+      } catch (e) { toast('Сервер недоступен — проверь связь.', 'ri-error-warning-line'); }
+    });
+  }
+
+  (async function run() {
+    const initData = wa ? (wa.initData || '') : '';
+    if (initData) {
+      try {
+        const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData }) });
+        if (r.ok) {
+          const d = await r.json().catch(() => ({}));
+          TG_SESSION.mode = 'tg'; TG_SESSION.initData = initData;
+          TG_SESSION.name = d.user && d.user.name;
+          return;
+        }
+        denyScreen();
+      } catch (e) { /* воркер недоступен — не блокируем */ }
+      return;
+    }
+    if (localStorage.getItem('ARES_TG_OK_V1')) { TG_SESSION.mode = 'code'; return; }
+    codeScreen(false);
+  })();
+
+  $('#repSendTG').addEventListener('click', async () => {
+    const report = $('#reportText').textContent.trim();
+    if (!report) { toast('Отчёт пуст.', 'ri-error-warning-line'); return; }
+    const payload = { report };
+    if (TG_SESSION.mode === 'tg' && TG_SESSION.initData) payload.initData = TG_SESSION.initData;
+    else { const c = localStorage.getItem('ARES_CODE_V1'); if (c) payload.code = c; }
+    const btn = $('#repSendTG'); btn.disabled = true;
+    try {
+      const r = await fetch(BOT_API + '/api/report', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (r.ok) toast('Отчёт улетел в Telegram.', 'ri-telegram-fill');
+      else toast('Не отправилось — доступ не подтверждён.', 'ri-error-warning-line');
+    } catch (e) {
+      toast('Сервер недоступен — скопируй отчёт вручную.', 'ri-error-warning-line');
+    }
+    btn.disabled = false;
+  });
+})();
 
 window.__aresReady = true;
 </script>
