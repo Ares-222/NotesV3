@@ -726,7 +726,7 @@ footer{background:var(--bg2)}
       <header class="sec-head" data-reveal>
         <div class="kicker"><span class="idx">01</span> ПРОГРАММИРОВАНИЕ <span class="rule"></span> <span class="tri"></span></div>
         <h2 class="sec-title">ПРОГРАММЫ <span class="o">ТРЕНИРОВОК.</span></h2>
-        <p class="sec-desc" style="margin-top:16px">Открой программу → жми «Начать тренировку» → работай по одному подходу: выполнил → отдых (подбирается по упражнению) → следующий. В жимовой и тяговой — расчёт весов от своего 1ПМ. Ноги — зона рекордов.</p>
+        <p class="sec-desc" style="margin-top:16px">Открой программу → жми «Начать тренировку» → работай по одному подходу: выполнил → отдых (подбирается по упражнению) → следующий. В жимовой и тяговой — расчёт весов от своего 1ПМ. Ноги — зона рекордов и вариантов.</p>
       </header>
 
       <div class="pc-grid" data-reveal>
@@ -755,7 +755,7 @@ footer{background:var(--bg2)}
           <span class="pc-main">
             <span class="pc-k">Тренировка</span>
             <h3 class="pc-name">Ноги</h3>
-            <span class="pc-tags">Ноги — силовой уклон · Бицепс (гантели)</span>
+            <span class="pc-tags">Силовой уклон · варианты базы · Бицепс (гантели)</span>
             <span class="pc-meta">10 блоков · зона рекордов</span>
           </span>
           <span class="pc-arrow"><i class="ri-arrow-right-line"></i></span>
@@ -1152,6 +1152,10 @@ footer{background:var(--bg2)}
         <div class="eq-row"><span>Т-гриф</span><a href="https://goldgym.ru/catalog/power/pure-strength-t-bar-row/" target="_blank" rel="noopener">GoldGym ↗</a></div>
         <div class="eq-row"><span>Горизонтальная тяга с подвижными ручками</span><a href="https://sportres.ru/product/gorizontalnaya-tyaga-krugovaya-versiya-super-panatta-1fw204/" target="_blank" rel="noopener">Sportres ↗</a></div>
         <div class="eq-row"><span>Пуловер Technogym</span><a href="https://goldgym.ru/catalog/trenazhery-s-probegom/pulover-technogym-pure-strenght-pullover/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span>Сгибания ног</span><a href="https://goldgym.ru/catalog/power/selection900-leg-curl/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span>Разгибания ног</span><a href="https://goldgym.ru/catalog/power/selection700-leg-extension/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span>Тренажёр «Колодец»</span><a href="https://goldgym.ru/catalog/power/loaded/booty-pump-prisedaniya-s-poyasom-kolodets-/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span>Подъём на бицепс 45°</span><a href="https://gym-training.com/ru/uprazhnenie-podem-ganteley-na-biceps-sidya-na-naklonnoy-skame/" target="_blank" rel="noopener">Gym-Training ↗</a></div>
       </div>
     </div>
   </section>
@@ -1368,44 +1372,50 @@ const PROGRAMS = [
         {w:'Гриф', r:'10', t:'Подконтрольное опускание + взрывной подъём'},
         {w:'65',   r:'5',  t:'Взрывной подъём'},
         {w:'90',   r:'2',  t:'Взрывной подъём — медленнее из-за веса'},
-        {w:'110',  r:'1',  t:'Пауза 2 секунды + взрывной подъём'},
+        {w:'115',  r:'1',  t:'Пауза 2 секунды + взрывной подъём'},
         {w:'100',  r:'3',  t:'Пауза 1 секунда + взрывной подъём'},
         {w:'100',  r:'3',  t:'Пауза 1 секунда + взрывной подъём'},
         {w:'100',  r:'3',  t:'Обычный темп'},
-        {w:'100',  r:'3',  t:'Обычный темп · по состоянию',
-          note:'Сделал 2, а не 3'},
-        {w:'90',   r:'4',  t:'Узкий хват · пауза 1 секунда · обычный темп подъёма'},
-        {w:'85',   r:'5',  t:'Узкий хват · Ларсон · пауза 1 секунда · обычный темп'}
+        {w:'100',  r:'3',  t:'Обычный темп · по состоянию'},
+        {w:'90',   r:'4',  t:'Узкий хват · пауза 1 секунда · взрывной подъём'},
+        {w:'85',   r:'5',  t:'Узкий хват · Ларсон · пауза 1 секунда · взрывной подъём'}
       ]},
     { name:'Сведение лёжа', eq:'PANATTA · СВЕДЕНИЕ',
-      sets:[ {w:'15', r:'12'}, {w:'20', r:'10'}, {w:'15', r:'8'} ]},
+      sets:[
+        {w:'15', r:'12', t:'Подконтрольно · в конце дожимай грудь бицепсом'},
+        {w:'20', r:'10', t:'Чуть негатив · максимальный контроль и прожим',
+          note:'Если жмёшь силой локтей — сбавь вес: здесь нужна идеальная техника'},
+        {w:'15', r:'8',  t:'Негатив'}
+      ]},
     { name:'Жим от плеч', rest:120, eq:'СВОБОДНЫЙ ВЕС',
       sets:[
-        {w:'25', r:'8', t:'Легко, подконтрольно, без касания'},
+        {w:'25', r:'8', t:'Взрывной подъём · без касания'},
         {w:'35', r:'6', t:'Также'},
-        {w:'40', r:'5', t:'Последний повтор — негатив 6 секунд'}
+        {w:'45', r:'5', t:'Также · последний повтор — негатив 6 секунд'}
       ]},
     { name:'Отведение плеча', eq:'PANATTA · ОТВЕДЕНИЕ',
       sets:[
-        {w:'40', r:'12'}, {w:'45', r:'10'}, {w:'50', r:'8'},
-        {w:'35', r:'8', t:'Взрыв + негатив'}
+        {w:'40', r:'12', t:'Пауза в верхней точке'},
+        {w:'45', r:'10', t:'Также'},
+        {w:'50', r:'8',  t:'Также'},
+        {w:'35', r:'8',  t:'Взрыв + негатив'}
       ]},
     { name:'Французский жим', eq:'PANATTA · ТРЕНАЖЁР',
       sets:[
-        {w:'40', r:'8', t:'Тяжеловато · максимальное растяжение + пауза внизу'},
-        {w:'60', r:'6'},
-        {w:'40', r:'8', t:'Взрыв + негатив'}
+        {w:'40', r:'8', t:'Максимальное растяжение + пауза внизу · взрывной подъём'},
+        {w:'60', r:'6', t:'Взрывной подъём · подконтрольно вниз'},
+        {w:'40', r:'8', t:'Также'}
       ]},
     { name:'Трицепс', eq:'PANATTA · ТРИЦЕПС',
       sets:[
-        {w:'10', r:'15', t:'Пауза + лёгкий негатив + средне-взрывной напор',
-          note:'Трицепс горит.'},
-        {w:'15', r:'12', note:'Уже не горит — будто рвётся.'}
+        {w:'15', r:'12', t:'Максимально чисто · со взрывным подъёмом'},
+        {w:'20', r:'10', t:'Также'}
       ]},
     { name:'Пресс', eq:'PANATTA · ПРЕСС',
       sets:[
-        {w:'35', r:'15'}, {w:'45', r:'12'},
-        {w:'30', r:'12', t:'Взрыв + негатив'}
+        {w:'35', r:'15', t:'Пауза в верхней точке'},
+        {w:'50', r:'12', t:'Пауза в верхней точке'},
+        {w:'35', r:'10', t:'Взрыв + негатив'}
       ]}
   ]
 },
@@ -1465,44 +1475,62 @@ const PROGRAMS = [
 },
 {
   id:'legs', num:'03', full:'Тренировка ног',
-  tags:'Ноги — силовой уклон · Бицепс (гантели) · Пресс', meta:'10 БЛОКОВ · СИЛОВОЙ УКЛОН',
+  tags:'Силовой уклон · варианты базы · Бицепс (гантели) · Пресс', meta:'10 БЛОКОВ · ВАРИАНТЫ В ПЕРВОМ БЛОКЕ',
   blocks:[
     { name:'Разгибания ног', eq:'ТРЕНАЖЁР',
       sets:[
-        {w:'50',  r:'12'}, {w:'70', r:'10'}, {w:'90', r:'6'},
-        {w:'100', r:'8',   t:'Закрепляем прошлый результат'}
+        {w:'50',  r:'12', t:'Подконтрольно · пауза вверху'},
+        {w:'70',  r:'10', t:'Также'},
+        {w:'90',  r:'6',  t:'Также'},
+        {w:'100', r:'4',  t:'Также'}
       ]},
-    { name:'Жим ногами', rest:180, eq:'ТРЕНАЖЁР',
-      note:'Прошлый раз: 195×10 · 275×8 · 385×5 — новый личный рекорд.',
-      sets:[
-        {w:'195',     r:'10'},
-        {w:'275',     r:'8'},
-        {w:'385–400', r:'5', t:'По ощущениям — можно пробовать прибавку'}
-      ]},
+    { name:'База ног — вариант на выбор', eq:'ЛИБО ЖИМ · ЛИБО КОЛОДЕЦ',
+      note:'Чередуй варианты от тренировки к тренировке.',
+      variants:{
+        a:{ name:'Жим ногами', sets:[
+          {w:'195',     r:'10'},
+          {w:'275',     r:'8'},
+          {w:'385–400', r:'5', t:'По ощущениям — можно пробовать прибавку'}
+        ]},
+        b:{ name:'Тренажёр «Колодец» — присед с поясом', sets:[
+          {w:'Разогревочный', r:'12'},
+          {w:'Рабочий 1',     r:'8'},
+          {w:'Рабочий 2',     r:'6'},
+          {w:'Тяжёлый',       r:'4'}
+        ]}
+      }},
     { name:'Сгибания ног', eq:'ТРЕНАЖЁР',
-      sets:[ {w:'40', r:'12'}, {w:'50', r:'8'}, {w:'60', r:'8'} ]},
-    { name:'Икры', eq:'ТРЕНАЖЁР',
-      sets:[ {w:'195', r:'12'}, {w:'195', r:'15'}, {w:'195', r:'15'} ]},
-    { name:'Экстензия', eq:'ТРЕНАЖЁР · ПОЯСНИЦА',
       sets:[
-        {w:'Лёгкий',       r:'10–12'},
-        {w:'Средний',      r:'8–10'},
-        {w:'Чуть тяжелее', r:'8'}
+        {w:'40', r:'12', t:'Пауза'},
+        {w:'50', r:'8',  t:'Пауза'},
+        {w:'60', r:'8',  t:'Пауза'}
       ]},
-    { name:'Подъём на бицепс на наклонной скамье', eq:'БИЦЕПС · ГАНТЕЛИ',
+    { name:'Икры', eq:'ЖИМОВАЯ ПЛАТФОРМА',
+      sets:[ {w:'195', r:'12'}, {w:'195', r:'15'}, {w:'195', r:'15'} ]},
+    { name:'Экстензия', eq:'СВОЙ ВЕС + БЛИН · если нет проблем со спиной',
+      sets:[
+        {w:'Свой вес', r:'15'},
+        {w:'Блин 20',  r:'12'},
+        {w:'Блин 30',  r:'8'}
+      ]},
+    { name:'Подъём на бицепс на наклонной скамье 45°', eq:'БИЦЕПС · ГАНТЕЛИ',
       sets:[ {w:'14', r:'10'}, {w:'16', r:'8'}, {w:'20–24', r:'6'} ]},
     { name:'Молотки стоя', eq:'БИЦЕПС · ГАНТЕЛИ',
-      sets:[ {w:'16', r:'10'}, {w:'20–24', r:'6–8'} ]},
+      sets:[ {w:'16', r:'10'}, {w:'24', r:'6'} ]},
     { name:'Косые молотки — ладонь вниз', eq:'БИЦЕПС · ГАНТЕЛИ',
       sets:[
-        {w:'12', r:'12'}, {w:'16', r:'10'},
-        {w:'12', r:'9', t:'Добивка'}
+        {w:'12', r:'12', t:'Взрывной подъём · подконтрольно'},
+        {w:'16', r:'10', t:'Чисто, подконтрольно'},
+        {w:'12', r:'8',  t:'Чисто, подконтрольно'}
       ]},
     { name:'Концентрированные сгибания сидя', eq:'БИЦЕПС · ГАНТЕЛИ',
-      sets:[ {w:'12', r:'10'}, {w:'12', r:'8'}, {w:'12', r:'6–8'} ]},
+      sets:[ {w:'16', r:'10'}, {w:'14', r:'8'}, {w:'12', r:'6'} ]},
     { name:'Пресс', eq:'PANATTA · ПРЕСС',
-      note:'Держи полную амплитуду — не форсируй вес, как в тестовом 70×4.',
-      sets:[ {w:'40', r:'15'}, {w:'50–60', r:'6–10'} ]}
+      sets:[
+        {w:'30', r:'15', t:'Пауза в верхней точке'},
+        {w:'50', r:'12'},
+        {w:'30', r:'10', t:'Взрыв + негатив'}
+      ]}
   ]
 }];
 
@@ -1571,22 +1599,24 @@ function getProg(pid) {
 }
 
 /* ================= КАЛЬКУЛЯТОР 1ПМ =================
-   Проценты выведены из авторской программы (жим: 1ПМ 115 · Т-гриф: 1ПМ 90).
+   Проценты выведены из авторской программы.
+   Жим (1ПМ автора 115): 57 / 79 / 100 (сингл) / 87 (рабочие) / 79 / 74.
+   Тяга (1ПМ автора 90): фикс 20 / 45 / 67 / 88 / 45.
    Вес = 1ПМ × % → округление вниз до блинов 2,5 кг. pct:0 = фиксированный вес. */
 const CALC_SPECS = {
   push: {
     title:'ЖИМ ЛЁЖА — РАСЧЁТ ОТ 1ПМ',
     rows:[
       {i:0, label:'01 · Гриф × 10',                        pct:0,  fixed:'Гриф'},
-      {i:1, label:'02 · × 5 — взрыв',                      pct:55},
-      {i:2, label:'03 · × 2 — взрыв',                      pct:78},
-      {i:3, label:'04 · × 1 — пауза 2 сек + взрыв',        pct:95},
+      {i:1, label:'02 · × 5 — взрыв',                      pct:57},
+      {i:2, label:'03 · × 2 — взрыв',                      pct:79},
+      {i:3, label:'04 · × 1 — пауза 2 сек + взрыв',        pct:100},
       {i:4, label:'05 · × 3 — пауза 1 сек + взрыв',        pct:87},
       {i:5, label:'06 · × 3 — пауза 1 сек + взрыв',        pct:87},
       {i:6, label:'07 · × 3 — обычный темп',               pct:87},
       {i:7, label:'08 · × 3 — обычный темп, по состоянию', pct:87},
-      {i:8, label:'09 · × 4 — узкий хват',                 pct:78},
-      {i:9, label:'10 · × 5 — узкий / Ларсон',             pct:73}
+      {i:8, label:'09 · × 4 — узкий хват',                 pct:79},
+      {i:9, label:'10 · × 5 — узкий / Ларсон',             pct:74}
     ]
   },
   pull: {
@@ -1647,8 +1677,8 @@ function blockHTML(b, i, pid) {
   const eq = b.eq || '';
   const eqHTML = eq ? `<span class="b-eq-wrap ${/panatta/i.test(eq) ? 'panatta' : ''}"><input class="b-eq-in" data-key="${pid}:b${i}:eq" data-def="${escA(eq)}" value="${escA(eq)}" aria-label="Тренажёр — можно изменить" autocomplete="off" spellcheck="false"></span>` : '';
   if (b.variants) {
-    const rowsA = b.variants.a.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'a', `Бицепс — вариант А: ${b.variants.a.name}`, rest)).join('');
-    const rowsB = b.variants.b.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'b', `Бицепс — вариант Б: ${b.variants.b.name}`, rest)).join('');
+    const rowsA = b.variants.a.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'a', `${b.name} — вариант А: ${b.variants.a.name}`, rest)).join('');
+    const rowsB = b.variants.b.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'b', `${b.name} — вариант Б: ${b.variants.b.name}`, rest)).join('');
     return `<section class="block">
       <header class="b-head"><span class="b-idx mono">${num}</span><h4>${b.name}</h4>${eqHTML}<span class="b-count">А / Б</span></header>
       ${b.note ? `<p class="b-note">${b.note}</p>` : ''}
@@ -2183,11 +2213,11 @@ function renderVariantChoice() {
   gyProgress();
   const vb = gym.p.blocks.find(b => b.variants);
   const na = vb ? vb.variants.a.name : 'А', nb = vb ? vb.variants.b.name : 'Б';
-  gyProg.textContent = gym.p.full.toUpperCase() + ' · БИЦЕПС';
+  gyProg.textContent = gym.p.full.toUpperCase() + ' · ВЫБОР ВАРИАНТА';
   gyMid.innerHTML = `
     <span class="gy-fin-k">ВЫБЕРИ ВАРИАНТ НА СЕГОДНЯ</span>
-    <h3 class="gy-fin">БИЦЕПС<em>.</em></h3>
-    <p class="gy-fin-p">В программе два варианта — сегодня делаешь один. Выбор запомнится до «сброса дня».</p>
+    <h3 class="gy-fin">${escA(vb ? vb.name : '').toUpperCase() || 'БЛОК'}<em>.</em></h3>
+    <p class="gy-fin-p">В этом блоке два варианта — сегодня делаешь один. Выбор запомнится до «сброса дня».</p>
     <button class="gy-done" data-act="pick-a">А — ${escA(na).toUpperCase()}</button>
     <button class="gy-done ghosty" data-act="pick-b">Б — ${escA(nb).toUpperCase()}</button>
     <button class="gy-ghost" data-act="close">ВЫЙТИ</button>`;
