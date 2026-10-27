@@ -94,7 +94,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .burger{display:none;width:42px;height:42px;border:1px solid var(--line2);place-items:center;font-size:19px}
 .mmenu{position:fixed;inset:0;background:var(--bg);z-index:1500;display:flex;flex-direction:column;justify-content:center;padding:8vw;transform:translateY(-102%);transition:transform .55s cubic-bezier(.75,0,.2,1)}
 body.menu-open .mmenu{transform:none}
-.mmenu a{font-family:var(--fh);font-weight:600;font-size:clamp(2rem,7.5vw,3.6rem);line-height:1.15;border-bottom:1px solid var(--line);padding:10px 0;text-transform:uppercase;transition:color .2s,padding-left .25s}
+.mmenu a{font-family:var(--fh);font-weight:600;font-size:clamp(1.9rem,7vw,3.4rem);line-height:1.15;border-bottom:1px solid var(--line);padding:9px 0;text-transform:uppercase;transition:color .2s,padding-left .25s}
 .mmenu a:hover{color:var(--red-hi);padding-left:12px}
 .m-close{position:absolute;top:18px;right:5vw;width:46px;height:46px;border:1px solid var(--line2);display:grid;place-items:center;font-size:20px}
 .m-k{font-size:10px;letter-spacing:.2em;color:var(--dim);margin-bottom:18px}
@@ -313,6 +313,25 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .q-block p{font-size:14px;line-height:1.75;color:var(--silver)}
 .q-block p b{color:var(--txt)}
 .q-block .q-sig{margin-top:12px;font:700 9px var(--fm);letter-spacing:.22em;color:var(--red-hi);text-transform:uppercase}
+
+/* ============ СПРАВОЧНИК ============ */
+.gloss-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gloss{border:1px solid var(--line2);background:var(--panel);padding:16px 18px}
+.gloss h4{font:600 15px var(--fh);letter-spacing:.08em;text-transform:uppercase;display:flex;gap:10px;align-items:baseline;margin-bottom:7px}
+.gloss h4 .g-term{color:var(--red-hi)}
+.gloss p{font-size:13px;color:var(--silver);line-height:1.65}
+.gloss p b{color:var(--txt)}
+.gloss.wide{grid-column:1/-1}
+.eq-links{margin-top:14px;border:1px solid var(--line2);background:var(--panel);padding:16px 18px}
+.eq-links h3{font:600 15px var(--fh);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.eq-links h3 i{color:var(--red-hi)}
+.eq-links .dat-p{margin-bottom:6px}
+.eq-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+.eq-row:last-child{border-bottom:0}
+.eq-row span{font-size:13.5px;font-weight:600;color:var(--txt)}
+.eq-row a{font:500 10.5px var(--fm);letter-spacing:.1em;color:var(--red-hi);border-bottom:1px solid rgba(255,59,42,.4);padding-bottom:2px;white-space:nowrap;text-transform:uppercase;flex:none}
+.eq-row a:hover{border-bottom-color:var(--red-hi)}
+@media(max-width:700px){.gloss-grid{grid-template-columns:1fr}}
 
 .big-marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:24px 0;overflow:hidden}
 .bm-group{display:flex;align-items:center}
@@ -552,6 +571,7 @@ footer{background:var(--bg2)}
       <a href="#iron">ЖЕЛЕЗО</a>
       <a href="#support">ПОДДЕРЖКА</a>
       <a href="#nutrition">ПИТАНИЕ</a>
+      <a href="#glossary">СПРАВОЧНИК</a>
       <a href="#contacts">КОНТАКТЫ</a>
     </div>
     <div class="nav-right">
@@ -569,6 +589,7 @@ footer{background:var(--bg2)}
   <a href="#iron">Железо</a>
   <a href="#support">Поддержка</a>
   <a href="#nutrition">Питание</a>
+  <a href="#glossary">Справочник</a>
   <a href="#contacts">Контакты</a>
   <span class="m-f"><span class="tri"></span> PANATTA · MADE IN ITALY</span>
 </div>
@@ -598,7 +619,7 @@ footer{background:var(--bg2)}
             <div class="def">
               <span class="d-idx">02</span>
               <div>
-                <h3>Бодибилдинг</h3>
+                <h3>Бодибилдинg</h3>
                 <p>Вес — инструмент, тело — результат. Мышцы, пропорции, качество формы. Строится медленно — не теряется никогда.</p>
               </div>
             </div>
@@ -1034,6 +1055,88 @@ footer{background:var(--bg2)}
     </div>
   </section>
 
+  <!-- ============ СПРАВОЧНИК ============ -->
+  <section id="glossary">
+    <div class="container">
+      <header class="sec-head" data-reveal>
+        <div class="kicker"><span class="idx">05</span> ТЕРМИНЫ · ТЕХНИКА · ТРЕНАЖЁРЫ <span class="rule"></span> <span class="tri"></span></div>
+        <h2 class="sec-title">СПРАВОЧНИК <span class="o">ARES.</span></h2>
+        <p class="sec-desc" style="margin-top:16px">Что значат записи в программах и где живёт каждый тренажёр. Читается за пять минут — вопросов больше не возникает.</p>
+      </header>
+
+      <div class="gloss-grid" data-reveal>
+        <div class="gloss">
+          <h4><span class="g-term">Взрывной подъём</span></h4>
+          <p>Резкий, мощный и <b>быстрый</b> подъём веса. Опускаешь подконтрольно — поднимаешь с максимальной скоростью, которую позволяет вес. Тренирует силу и мощность, а не просто «дожать повтор».</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Негатив</span></h4>
+          <p><b>Опускание</b> веса в течение <b>3 секунд</b> — медленное и подконтрольное, против силы гравитации. Мышцы на опускании работают не меньше, чем на подъёме — негатив добивает их, когда подъём уже не идёт.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Взрыв + негатив</span></h4>
+          <p>Комбинация: <b>подъём — взрывной</b>, <b>опускание — негатив, 3 секунды</b>. Самый тяжёлый режим в программах: максимум мощности вверх, максимум контроля вниз. Обычно ставится в конце блока как финишер.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Пауза 1 / 2 секунды</span></h4>
+          <p>После опускания вес <b>замирает</b> на указанное время — без отбива, без помощи инерции. Убивает читинг и заставляет мышцы стартовать с мёртвой точки. Пауза 2 секунды в жиме лёжа — стандарт соревновательного пауэрлифтинга.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Ларсон</span></h4>
+          <p>Жим лёжа <b>узким хватом с изогнутой штангой</b> (Larson bar): гриф изогнут так, что кисти стоят под естественным углом — трицепс работает жёстче, а запястья не выкручиваются. У нас выполняется как обычный жим узким хватом, только комфортнее для рук.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Узкий хват</span></h4>
+          <p>Кисти на грифе <b>уже плеч</b> — примерно на ширине таза. Смещает акцент с груди на <b>трицепс и внутреннюю часть груди</b>. В записях всегда уточняется: «узкий хват» = руки уже, чем в обычном жиме.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">До отказа</span></h4>
+          <p>Подход продолжается до последнего <b>чистого</b> повтора — того, после которого следующий технично уже не сделать. Не «пока руки не отвалятся», а именно до последнего честного движения.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Добивка</span></h4>
+          <p>Дополнительный подход в конце упражнения — <b>лёгким весом, до отказа</b>. Финальный аккорд блока: добить мышцу, когда основные подходы уже сделаны.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">По состоянию</span></h4>
+          <p>Подход выполняется, <b>если тело позволяет</b>: есть силы и техника не едет. Нет сил — подход пропускается без чувства вины. Программа учитывает усталость, а не воюет с ней.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Тоннаж</span></h4>
+          <p>Сумма: <b>вес × повторы × подходы</b> за тренировку или блок. Показывает объём работы в килограммах. Растёт не только от веса на штанге — и от выносливости, и от количества повторов.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Отдых 90 / 120 / 180</span></h4>
+          <p>Секунды между подходами. Логика простая: <b>180</b> — база (жим, Т-гриф, жим ногами), <b>120</b> — средняя тяжесть, <b>90</b> — изоляция и пресс. Таймер в зальном режиме ставит нужное сам.</p>
+        </div>
+        <div class="gloss">
+          <h4><span class="g-term">Жим / тяга / сведение / отведение</span></h4>
+          <p><b>Жим</b> — толкаешь от себя. <b>Тяга</b> — притягиваешь к себе. <b>Сведение</b> — сводишь руки через сторону внутрь. <b>Отведение</b> — уводишь от тела наружу. Эти слова в названии определяют само движение.</p>
+        </div>
+        <div class="gloss wide">
+          <h4><span class="g-term">Как читать запись «100×3 (пауза 1 секунда + взрывной подъём)»</span></h4>
+          <p><b>100</b> — вес в килограммах. <b>×3</b> — три повтора. В скобках — <b>техника повтора</b>: опустил, держишь паузу секунду, поднимаешь взрывом. Всё, что после тире и красным — личные заметки по подходу.</p>
+        </div>
+      </div>
+
+      <div class="eq-links" data-reveal>
+        <h3><i class="ri-external-link-line"></i> ТРЕНАЖЁРЫ — ОФИЦИАЛЬНЫЕ СТРАНИЦЫ</h3>
+        <p class="dat-p">Где живёт каждое железо из программ: характеристики, фото, описание от производителя.</p>
+        <div class="eq-row"><span>Бицепс Panatta</span><a href="https://www.panattasport.com/en/free-weight-special/three-angles-bicep-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span>Сведение Panatta лёжа</span><a href="https://www.panattasport.com/en/free-weight-special/super-middle-chest-flight-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span>Французский жим</span><a href="https://www.panattasport.com/en/free-weight-special/super-french-press-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span>Х-тяга</span><a href="https://www.panattasport.com/en/free-weight-special/super-lat-pulldown-circular/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span>Отведение плеча</span><a href="https://www.panattasport.com/en/fit-evo/standing-multi-flight/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span>Трицепс Panatta</span><a href="https://www.panattasport.com/en/free-weight-special/alternate-triceps-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span>Пресс Panatta</span><a href="https://sportres.ru/product/press-panatta-1hp565/" target="_blank" rel="noopener">Sportres ↗</a></div>
+        <div class="eq-row"><span>Жим от плеч</span><a href="https://goldgym.ru/catalog/power/pure-strength-shoulder-press/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span>Т-гриф</span><a href="https://goldgym.ru/catalog/power/pure-strength-t-bar-row/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span>Горизонтальная тяга с подвижными ручками</span><a href="https://sportres.ru/product/gorizontalnaya-tyaga-krugovaya-versiya-super-panatta-1fw204/" target="_blank" rel="noopener">Sportres ↗</a></div>
+        <div class="eq-row"><span>Пуловер Technogym</span><a href="https://goldgym.ru/catalog/trenazhery-s-probegom/pulover-technogym-pure-strenght-pullover/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+      </div>
+    </div>
+  </section>
+
   <div class="big-marquee" aria-hidden="true">
     <div class="bm-track" id="legTrack"></div>
   </div>
@@ -1041,7 +1144,7 @@ footer{background:var(--bg2)}
   <section id="contacts">
     <div class="container">
       <header class="sec-head" data-reveal>
-        <div class="kicker"><span class="idx">05</span> КОНТАКТЫ <span class="rule"></span> <span class="tri"></span></div>
+        <div class="kicker"><span class="idx">06</span> КОНТАКТЫ <span class="rule"></span> <span class="tri"></span></div>
         <h2 class="sec-title">НА <span class="o">СВЯЗИ.</span></h2>
       </header>
       <div class="contact-grid" data-reveal>
@@ -1210,7 +1313,7 @@ function b64urlD(s) {
   return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
 }
 
-/* появление при скролле — с защитой на случай отсутствия IntersectionObserver */
+/* появление при скролле */
 const HAS_IO = 'IntersectionObserver' in window;
 let rIO = null;
 if (HAS_IO) {
@@ -2241,7 +2344,7 @@ if (HAS_IO) {
       l.classList.add('active');
     }
   }), { rootMargin: '-45% 0px -50% 0px' });
-  ['programs', 'iron', 'support', 'nutrition', 'contacts'].forEach(id => {
+  ['programs', 'iron', 'support', 'nutrition', 'glossary', 'contacts'].forEach(id => {
     const el = document.getElementById(id); if (el) secIO.observe(el);
   });
 }
@@ -2436,4 +2539,4 @@ const TG_SESSION = { mode: null, initData: null, name: null };
 window.__aresReady = true;
 </script>
 </body>
-</html>
+                                                                     </html>
