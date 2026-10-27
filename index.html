@@ -183,6 +183,25 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .sb-hint{font:500 9.5px/1.9 var(--fm);letter-spacing:.12em;color:var(--dim);text-transform:uppercase;flex:1;min-width:200px}
 .sb-hint b{color:var(--silver);font-weight:700}
 
+/* ============ КАЛЬКУЛЯТОР 1ПМ ============ */
+.calc{margin-top:14px;border:1px solid var(--line2);background:var(--bg2);padding:16px 18px;display:none}
+.calc.open{display:block}
+.calc-title{font:600 14px var(--fh);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.calc-title i{color:var(--red-hi)}
+.calc-warn{border:1px dashed rgba(225,6,0,.45);background:rgba(225,6,0,.06);padding:12px 14px;font-size:12.5px;color:var(--silver);line-height:1.65;margin-bottom:14px}
+.calc-warn b{color:var(--red-hi)}
+.calc-in-row{display:flex;gap:16px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap}
+.calc-lbl{font:700 9px var(--fm);letter-spacing:.18em;color:var(--dim);text-transform:uppercase;display:block;margin-bottom:6px}
+.calc-in{width:120px;background:var(--bg);border:1px solid var(--line2);color:var(--txt);font:700 26px var(--fh);padding:8px 12px;text-align:center;-webkit-appearance:none;appearance:none}
+.calc-in:focus{outline:0;border-color:var(--red)}
+.calc-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--silver)}
+.calc-row:last-child{border-bottom:0}
+.calc-row .pct{font:500 10px var(--fm);letter-spacing:.08em;color:var(--dim);white-space:nowrap}
+.calc-row b{color:var(--txt);font:700 16px var(--fh);white-space:nowrap;font-variant-numeric:tabular-nums}
+.calc-note{margin-top:10px;font-size:12px;color:var(--dim);line-height:1.6}
+.calc-note b{color:var(--red-hi)}
+.calc-apply{margin-top:14px;width:100%;justify-content:center}
+
 .block{border-top:1px solid var(--line);padding:18px 0 14px}
 .block:first-of-type{border-top:0;padding-top:14px}
 .b-head{display:grid;grid-template-columns:40px 1fr auto auto;gap:12px;align-items:center}
@@ -707,7 +726,7 @@ footer{background:var(--bg2)}
       <header class="sec-head" data-reveal>
         <div class="kicker"><span class="idx">01</span> ПРОГРАММИРОВАНИЕ <span class="rule"></span> <span class="tri"></span></div>
         <h2 class="sec-title">ПРОГРАММЫ <span class="o">ТРЕНИРОВОК.</span></h2>
-        <p class="sec-desc" style="margin-top:16px">Открой программу → жми «Начать тренировку» → работай по одному подходу: выполнил → отдых (подбирается по упражнению) → следующий. Всё правится на месте. Четвёртая карточка — конструктор своего плана.</p>
+        <p class="sec-desc" style="margin-top:16px">Открой программу → жми «Начать тренировку» → работай по одному подходу: выполнил → отдых (подбирается по упражнению) → следующий. В жимовой и тяговой — расчёт весов от своего 1ПМ. Ноги — зона рекордов.</p>
       </header>
 
       <div class="pc-grid" data-reveal>
@@ -717,7 +736,7 @@ footer{background:var(--bg2)}
             <span class="pc-k">Тренировка</span>
             <h3 class="pc-name">Жимовая</h3>
             <span class="pc-tags">Грудь · Плечи · Трицепс · Пресс</span>
-            <span class="pc-meta">10 подходов жима · 7 блоков</span>
+            <span class="pc-meta">10 подходов жима · расчёт от 1ПМ</span>
           </span>
           <span class="pc-arrow"><i class="ri-arrow-right-line"></i></span>
         </button>
@@ -727,7 +746,7 @@ footer{background:var(--bg2)}
             <span class="pc-k">Тренировка</span>
             <h3 class="pc-name">Тяговая</h3>
             <span class="pc-tags">Спина · Бицепс · Пресс</span>
-            <span class="pc-meta">6 блоков · бицепс — вариант А/Б</span>
+            <span class="pc-meta">6 блоков · расчёт от 1ПМ</span>
           </span>
           <span class="pc-arrow"><i class="ri-arrow-right-line"></i></span>
         </button>
@@ -1551,6 +1570,60 @@ function getProg(pid) {
   return PROGRAMS.find(x => x.id === pid);
 }
 
+/* ================= КАЛЬКУЛЯТОР 1ПМ =================
+   Проценты выведены из авторской программы (жим: 1ПМ 115 · Т-гриф: 1ПМ 90).
+   Вес = 1ПМ × % → округление вниз до блинов 2,5 кг. pct:0 = фиксированный вес. */
+const CALC_SPECS = {
+  push: {
+    title:'ЖИМ ЛЁЖА — РАСЧЁТ ОТ 1ПМ',
+    rows:[
+      {i:0, label:'01 · Гриф × 10',                        pct:0,  fixed:'Гриф'},
+      {i:1, label:'02 · × 5 — взрыв',                      pct:55},
+      {i:2, label:'03 · × 2 — взрыв',                      pct:78},
+      {i:3, label:'04 · × 1 — пауза 2 сек + взрыв',        pct:95},
+      {i:4, label:'05 · × 3 — пауза 1 сек + взрыв',        pct:87},
+      {i:5, label:'06 · × 3 — пауза 1 сек + взрыв',        pct:87},
+      {i:6, label:'07 · × 3 — обычный темп',               pct:87},
+      {i:7, label:'08 · × 3 — обычный темп, по состоянию', pct:87},
+      {i:8, label:'09 · × 4 — узкий хват',                 pct:78},
+      {i:9, label:'10 · × 5 — узкий / Ларсон',             pct:73}
+    ]
+  },
+  pull: {
+    title:'ТЯГА Т-ГРИФА — РАСЧЁТ ОТ 1ПМ',
+    rows:[
+      {i:0, label:'01 · × 12 — техника: паузы + растяжение', pct:0,  fixed:'20'},
+      {i:1, label:'02 · × 6 — техника',                      pct:45},
+      {i:2, label:'03 · × 3 — взрывной подъём',              pct:67},
+      {i:3, label:'04 · × 4–6 — взрыв, до отказа',           pct:88},
+      {i:4, label:'05 · × 8 — взрыв + негатив, до отказа',   pct:45}
+    ]
+  }
+};
+function calcWeight(one, pct) {
+  let w = Math.floor(one * pct / 100 / 2.5) * 2.5;
+  if (w < 2.5) w = 2.5;
+  return w;
+}
+function calcHTML(pid) {
+  const s = CALC_SPECS[pid];
+  const ph = pid === 'push' ? '115' : '90';
+  return `<div class="calc" id="calc-${pid}">
+    <div class="calc-title"><i class="ri-calculator-line"></i>${s.title}</div>
+    <div class="calc-warn">⚠️ <b>ВСЁ СЧИТАЕТСЯ ТОЛЬКО ДЛЯ ЧИСТОЙ ТЕХНИКИ.</b> 30 кг в идеальной технике лучше, чем 60 в кривой. 1ПМ — тот, что поднял без читинга, без «половины повтора на страховке». Программа считает от честной цифры — врать тут можно только себе.</div>
+    <div class="calc-in-row">
+      <div>
+        <span class="calc-lbl">ТВОЙ 1ПМ · КГ</span>
+        <input class="calc-in" id="calcIn-${pid}" inputmode="decimal" placeholder="${ph}" autocomplete="off">
+      </div>
+      <p class="calc-note" style="margin-top:0">Проценты выведены из авторской программы: разминка → сингл → рабочие 87% → спец-блоки. Округление вниз до блинов 2,5 кг.</p>
+    </div>
+    <div id="calcRows-${pid}"></div>
+    <button class="btn-fin calc-apply" id="calcApply-${pid}"><i class="ri-arrow-down-line"></i> ПОДСТАВИТЬ В ПРОГРАММУ</button>
+    <p class="calc-note"><b>Когда добавлять:</b> последний подход лёгкий, в запасе 2+ повтора → <b>+2,5 кг</b> к рабочим. На грани техники → вес стоит, добирай качество. Техника поехала → <b>−5 кг</b> и назад к чистоте. Прогресс — только после чистой недели.</p>
+  </div>`;
+}
+
 /* ================= РЕНДЕР ================= */
 const MEMO = `<div class="p-note"><i class="ri-flashlight-fill"></i><div>
   <b>ПАМЯТКА:</b> правильное питание и витамины — база, а не дополнение. Без поддержки организма программа даёт лишь половину результата. <a href="#support">Весь протокол →</a></div></div>`;
@@ -1592,6 +1665,7 @@ function blockHTML(b, i, pid) {
   </section>`;
 }
 function panelHTML(p) {
+  const hasCalc = !!CALC_SPECS[p.id];
   return `<div class="panel" id="panel-${p.id}"><div class="panel-in"><div class="panel-box" data-pid="${p.id}">
     <header class="panel-head">
       <div>
@@ -1604,8 +1678,10 @@ function panelHTML(p) {
     <div class="p-body">
       <div class="start-bar">
         <button class="btn-start" data-gym="${p.id}"><i class="ri-play-fill"></i>НАЧАТЬ ТРЕНИРОВКУ</button>
+        ${hasCalc ? '<button class="gy-open" data-calc="' + p.id + '"><i class="ri-calculator-line"></i>РАСЧЁТ ОТ 1ПМ</button>' : ''}
         <span class="sb-hint"><b>КАК РАБОТАЕТ:</b> подход → «ВЫПОЛНЕНО» → отдых по упражнению (тап — пропуск) → следующий. Цифры, заметки и тренажёр правятся на месте.</span>
       </div>
+      ${hasCalc ? calcHTML(p.id) : ''}
       ${p.blocks.map((b, i) => blockHTML(b, i, p.id)).join('')}
       <div class="track-bar">
         <span class="tb-label">ВЫПОЛНЕНО <span class="tb-count">0/0</span></span>
@@ -1814,6 +1890,64 @@ try {
   updateProgress(pid);
   toast('День сброшен — чистый лист.', 'ri-restart-line');
 }));
+
+/* ================= КАЛЬКУЛЯТОР: логика ================= */
+function calcRender(pid) {
+  const inp = document.getElementById('calcIn-' + pid);
+  const box = document.getElementById('calcRows-' + pid);
+  if (!inp || !box) return;
+  const one = parseFloat(String(inp.value).replace(',', '.'));
+  const spec = CALC_SPECS[pid];
+  if (!one || one < 20 || one > 500) {
+    box.innerHTML = spec.rows.map(r =>
+      `<div class="calc-row"><span>${r.label}</span><span><span class="pct">${r.pct ? r.pct + '%' : 'фикс'}</span> <b>—</b></span></div>`).join('');
+    return;
+  }
+  box.innerHTML = spec.rows.map(r => {
+    let w;
+    if (r.pct) w = calcWeight(one, r.pct) + ' кг';
+    else w = r.fixed + (/[0-9]/.test(r.fixed) ? ' кг' : '');
+    return `<div class="calc-row"><span>${r.label}</span><span><span class="pct">${r.pct ? r.pct + '%' : 'фикс'}</span> <b>${escA(w)}</b></span></div>`;
+  }).join('');
+}
+function calcApply(pid) {
+  const panel = document.getElementById('panel-' + pid); if (!panel) return;
+  const inp = document.getElementById('calcIn-' + pid);
+  const one = parseFloat(String(inp.value).replace(',', '.'));
+  if (!one || one < 20 || one > 500) { toast('Введи честный 1ПМ в килограммах.', 'ri-error-warning-line'); return; }
+  store['1pm:' + pid] = one;
+  const blk = $$('#panel-' + pid + ' .block')[0]; if (!blk) return;
+  const rows = $$('.set', blk);
+  CALC_SPECS[pid].rows.forEach(r => {
+    const row = rows[r.i]; if (!row) return;
+    let w;
+    if (r.pct) w = String(calcWeight(one, r.pct));
+    else w = r.fixed;
+    const wi = $('.in-w', row);
+    wi.value = w; fitInp(wi);
+    row.dataset.w0 = w; /* «Сброс дня» вернёт рассчитанные веса, а не авторские */
+    store[row.dataset.k] = Object.assign({}, store[row.dataset.k], { w: w });
+  });
+  saveStore();
+  ['push', 'pull'].forEach(updateProgress);
+  toast('Веса подставлены. Прогресс — только чистая техника.', 'ri-check-double-line');
+}
+(function initCalc() {
+  Object.keys(CALC_SPECS).forEach(pid => {
+    const btn = document.querySelector('[data-calc="' + pid + '"]');
+    if (!btn) return;
+    const inp = document.getElementById('calcIn-' + pid);
+    if (store['1pm:' + pid] != null) inp.value = store['1pm:' + pid];
+    btn.addEventListener('click', () => {
+      const box = document.getElementById('calc-' + pid);
+      box.classList.toggle('open');
+      if (box.classList.contains('open')) calcRender(pid);
+    });
+    inp.addEventListener('input', () => calcRender(pid));
+    document.getElementById('calcApply-' + pid).addEventListener('click', () => calcApply(pid));
+    if (inp.value) calcRender(pid);
+  });
+})();
 
 /* ================= СТАТИСТИКА ================= */
 function fmtDur(s) {
@@ -2631,4 +2765,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-</html>
+  </html>
