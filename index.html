@@ -2567,7 +2567,21 @@ window.ARES_BLOCKS = {};
     TG_SESSION.mode = mode; TG_SESSION.initData = initData || null;
     TG_SESSION.name = d.user && d.user.name;
     applyBlocks(d.blocks || {});
+    startHeartbeat(initData);
     return true;
+  }
+  /* пульс активности: раз в минуту, пока приложение на экране */
+  function startHeartbeat(initData) {
+    if (!initData) return;
+    const BEAT = 60;
+    setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      try {
+        fetch(BOT_API + '/api/beat', { method: 'POST', keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: initData, seconds: BEAT }) }).catch(function(){});
+      } catch (e) {}
+    }, BEAT * 1000);
   }
   (async function run() {
     const initData = wa ? (wa.initData || '') : '';
@@ -2617,4 +2631,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-  </html>
+</html>
