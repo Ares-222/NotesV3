@@ -164,6 +164,7 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .pcard:hover *,.pcard.active *{color:#fff}
 .pcard:hover .pc-arrow,.pcard.active .pc-arrow{color:#0a0a0b;transform:rotate(45deg)}
 .pc-hint{font-family:var(--fm);font-size:10px;letter-spacing:.16em;color:var(--dim);margin-top:14px;display:flex;align-items:center;gap:10px;text-transform:uppercase}
+.pc-badge{position:absolute;top:10px;right:12px;z-index:2;background:var(--red);color:#fff;font:700 8.5px var(--fm);letter-spacing:.14em;padding:5px 8px;text-transform:uppercase;animation:pulse 1.6s infinite;border:1px solid rgba(255,255,255,.25)}
 
 .panel{position:relative;overflow:hidden;max-height:0;transition:max-height .55s cubic-bezier(.25,.8,.25,1)}
 .panel-box{border:1px solid var(--line2);border-top:3px solid var(--red);background:var(--panel);margin-top:22px;scroll-margin-top:100px}
@@ -251,8 +252,8 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .duo::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(165deg,rgba(225,6,0,.32),rgba(10,10,11,.6) 75%);pointer-events:none}
 .duo-cap{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(8,8,9,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-top:1px solid var(--line);font-family:var(--fm);font-size:9px;letter-spacing:.14em;color:var(--silver);text-transform:uppercase}
 .duo-cap b{color:var(--red-hi);font-weight:400}
-.photo-hint{font-family:var(--fm);font-size:9.5px;letter-spacing:.12em;color:var(--dim);margin-top:14px;display:flex;align-items:center;gap:10px;text-transform:uppercase}
-.photo-hint i{color:var(--red-hi)}
+.photo-hint{font-family:var(--fm);font-size:9.5px;letter-spacing:.12em;color:var(--dim);margin-top:14px;display:block;line-height:2;text-transform:uppercase}
+.photo-hint i{color:var(--red-hi);margin-right:8px;transform:translateY(1px)}
 .photo-hint b{color:var(--silver);font-weight:500}
 
 .sup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -314,7 +315,6 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .q-block p b{color:var(--txt)}
 .q-block .q-sig{margin-top:12px;font:700 9px var(--fm);letter-spacing:.22em;color:var(--red-hi);text-transform:uppercase}
 
-/* ============ СПРАВОЧНИК ============ */
 .gloss-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .gloss{border:1px solid var(--line2);background:var(--panel);padding:16px 18px}
 .gloss h4{font:600 15px var(--fh);letter-spacing:.08em;text-transform:uppercase;display:flex;gap:10px;align-items:baseline;margin-bottom:7px}
@@ -619,7 +619,7 @@ footer{background:var(--bg2)}
             <div class="def">
               <span class="d-idx">02</span>
               <div>
-                <h3>Бодибилдинg</h3>
+                <h3>Бодибилдинг</h3>
                 <p>Вес — инструмент, тело — результат. Мышцы, пропорции, качество формы. Строится медленно — не теряется никогда.</p>
               </div>
             </div>
@@ -711,7 +711,7 @@ footer{background:var(--bg2)}
       </header>
 
       <div class="pc-grid" data-reveal>
-        <button class="pcard" data-target="press" aria-expanded="false" aria-controls="panel-press">
+        <button class="pcard" data-target="push" aria-expanded="false" aria-controls="panel-push">
           <span class="pc-num mono">/01</span>
           <span class="pc-main">
             <span class="pc-k">Тренировка</span>
@@ -1340,7 +1340,7 @@ setTimeout(() => { const sp = $('#splash'); if (sp) { sp.classList.add('gone'); 
 /* ================= ПРОГРАММЫ ================= */
 const PROGRAMS = [
 {
-  id:'press', num:'01', full:'Жимовая тренировка',
+  id:'push', num:'01', full:'Жимовая тренировка',
   tags:'Грудь · Плечи · Трицепс · Пресс', meta:'7 БЛОКОВ · 10 ПОДХОДОВ ЖИМА',
   blocks:[
     { name:'Жим лёжа', rest:180, eq:'СВОБОДНЫЙ ВЕС · СИЛОВАЯ РАМА',
@@ -1522,6 +1522,24 @@ const saveStore = () => {
 };
 addEventListener('pagehide', () => { try { saveStore(); } catch (e) {} });
 
+/* миграция: press → push (старые данные переносятся автоматически) */
+(function migratePressToPush() {
+  try {
+    let changed = false;
+    Object.keys(store).forEach(k => {
+      if (k.indexOf('press:') === 0) { store['push' + k.slice(5)] = store[k]; delete store[k]; changed = true; }
+    });
+    const S = LS.get('ARES_SESSION_V1');
+    if (S) {
+      try {
+        const sess = JSON.parse(S);
+        if (sess && sess.press) { sess.push = sess.press; delete sess.press; LS.set('ARES_SESSION_V1', JSON.stringify(sess)); }
+      } catch (e) {}
+    }
+    if (changed) saveStore();
+  } catch (e) {}
+})();
+
 function getProg(pid) {
   if (pid === 'custom') {
     return {
@@ -1670,6 +1688,11 @@ function closePanelEl(panel) {
   panel.style.maxHeight = '0px';
 }
  $$('.pcard').forEach(card => card.addEventListener('click', () => {
+  const blk = (window.ARES_BLOCKS || {})[card.dataset.target];
+  if (blk && (!blk.until || blk.until > Date.now())) {
+    if (window.aresShowBlock) window.aresShowBlock(card.dataset.target);
+    return;
+  }
   const panel = document.getElementById('panel-' + card.dataset.target);
   if (!panel) return;
   const wasOpen = panel.classList.contains('open');
@@ -1761,12 +1784,12 @@ function applyStore() {
     inp.closest('.b-eq-wrap').classList.toggle('panatta', /panatta/i.test(inp.value));
     fitInp(inp, 34);
   });
-  ['press', 'pull', 'legs', 'custom'].forEach(updateProgress);
+  ['push', 'pull', 'legs', 'custom'].forEach(updateProgress);
 }
 try {
   bindRows($('#panels'));
   bindEq($('#panels'));
-  ['press', 'pull', 'legs', 'custom'].forEach(updateProgress);
+  ['push', 'pull', 'legs', 'custom'].forEach(updateProgress);
   updateCustomCard();
 } catch (e) { document.documentElement.classList.add('nojs-ok'); }
 
@@ -2457,18 +2480,58 @@ function copyText(text, label) {
 if (!LS_OK) setTimeout(() =>
   toast('Хранение закрыто (предпросмотр). Прогресс переживёт перезакрытие только через код «ДАННЫЕ · БЭКАП».', 'ri-database-2-line'), 2600);
 
-/* ================= MINI APP: доступ + отправка отчёта =================
+/* ================= MINI APP: доступ + баны + техработы + блоки =================
    Адрес воркера Cloudflare. Если в дашборде он другой — поправь здесь. */
 const BOT_API = 'https://ares-gym-bot.maks222berg.workers.dev';
-const TG_SESSION = { mode: null, initData: null, name: null };
+const TG_SESSION = { mode: null, initData: null, name: null, blocks: {} };
+window.ARES_BLOCKS = {};
 
 (function initGate() {
   const wa = window.Telegram && window.Telegram.WebApp;
   if (wa) { try { wa.ready(); wa.expand(); } catch (e) {} }
   const gate = $('#gateModal'), body = $('#gateBody');
+  let tmIv = null;
   const show = html => { body.innerHTML = html; gate.classList.add('open'); refreshLock(); };
-  const hide = () => { gate.classList.remove('open'); refreshLock(); };
+  const hide = () => { if (tmIv) { clearInterval(tmIv); tmIv = null; } gate.classList.remove('open'); refreshLock(); };
 
+  function countdown(until) {
+    if (tmIv) { clearInterval(tmIv); tmIv = null; }
+    const tick = () => {
+      const e = document.getElementById('gateTm'); if (!e) return;
+      const d = until - Date.now();
+      if (d <= 0) { e.textContent = 'разблокировка…'; if (tmIv) { clearInterval(tmIv); tmIv = null; } setTimeout(() => location.reload(), 2000); return; }
+      const s = Math.ceil(d / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+      e.textContent = (h ? h + ' ч ' : '') + (m ? m + ' мин ' : '') + x + ' с';
+    };
+    tick(); tmIv = setInterval(tick, 1000);
+  }
+  function blockScreen(kind, reason, until) {
+    const t = kind === 'ban' ? 'ДОСТУП ПРИОСТАНОВЛЕН' : 'ТЕХ РАБОТЫ';
+    show(`
+      <span class="dat-label" style="color:var(--red-hi)">${t}</span>
+      ${reason ? `<p class="dat-p"><b style="color:var(--txt)">${escA(reason)}</b></p>` : ''}
+      <span class="dat-label">ДО РАЗБЛОКИРОВКИ</span>
+      <p class="dat-p" style="font:700 26px var(--fh);color:var(--red-hi)" id="gateTm">…</p>`);
+    if (until) countdown(until);
+    else { const e = document.getElementById('gateTm'); if (e) e.textContent = 'до решения владельца'; }
+  }
+  window.aresShowBlock = pid => {
+    const b = TG_SESSION.blocks[pid]; if (!b) return;
+    blockScreen('lock', b.reason, b.until);
+  };
+  function applyBlocks(blocks) {
+    window.ARES_BLOCKS = blocks || {}; TG_SESSION.blocks = blocks || {};
+    Object.keys(window.ARES_BLOCKS).forEach(pid => {
+      const b = window.ARES_BLOCKS[pid];
+      if (!b || (b.until && b.until <= Date.now())) return;
+      const card = document.querySelector('.pcard[data-target="' + pid + '"]');
+      if (card && !card.querySelector('.pc-badge')) {
+        const sp = document.createElement('span');
+        sp.className = 'pc-badge'; sp.textContent = 'НА ТЕХ РАБОТАХ';
+        card.appendChild(sp);
+      }
+    });
+  }
   function denyScreen() {
     show(`
       <span class="dat-label">ДОСТУП ЗАКРЫТ</span>
@@ -2488,32 +2551,40 @@ const TG_SESSION = { mode: null, initData: null, name: null };
         const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
           headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
         if (r.ok) {
+          const d = await r.json().catch(() => ({}));
           localStorage.setItem('ARES_TG_OK_V1', 'code');
           localStorage.setItem('ARES_CODE_V1', code);
-          TG_SESSION.mode = 'code';
-          hide(); toast('Доступ открыт.', 'ri-checkbox-circle-fill');
-        } else codeScreen(true);
+          if (await handleState(d, 'code', null)) { hide(); toast('Доступ открыт.', 'ri-checkbox-circle-fill'); }
+          return;
+        }
+        codeScreen(true);
       } catch (e) { toast('Сервер недоступен — проверь связь.', 'ri-error-warning-line'); }
     });
   }
-
+  async function handleState(d, mode, initData) {
+    if (d.ban) { blockScreen('ban', d.ban.reason, d.ban.until); return false; }
+    if (d.lock) { blockScreen('lock', d.lock.reason, d.lock.until); return false; }
+    TG_SESSION.mode = mode; TG_SESSION.initData = initData || null;
+    TG_SESSION.name = d.user && d.user.name;
+    applyBlocks(d.blocks || {});
+    return true;
+  }
   (async function run() {
     const initData = wa ? (wa.initData || '') : '';
-    if (initData) {
-      try {
+    try {
+      if (initData) {
         const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
           headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData }) });
-        if (r.ok) {
-          const d = await r.json().catch(() => ({}));
-          TG_SESSION.mode = 'tg'; TG_SESSION.initData = initData;
-          TG_SESSION.name = d.user && d.user.name;
-          return;
-        }
-        denyScreen();
-      } catch (e) { /* воркер недоступен — не блокируем */ }
-      return;
-    }
-    if (localStorage.getItem('ARES_TG_OK_V1')) { TG_SESSION.mode = 'code'; return; }
+        if (r.ok) { const d = await r.json().catch(() => ({})); await handleState(d, 'tg', initData); return; }
+        denyScreen(); return;
+      }
+      const saved = localStorage.getItem('ARES_TG_OK_V1'), code = localStorage.getItem('ARES_CODE_V1');
+      if (saved && code) {
+        const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+        if (r.ok) { const d = await r.json().catch(() => ({})); await handleState(d, 'code', null); return; }
+      }
+    } catch (e) { return; } /* воркер недоступен — не блокируем */
     codeScreen(false);
   })();
 
@@ -2528,7 +2599,14 @@ const TG_SESSION = { mode: null, initData: null, name: null };
       const r = await fetch(BOT_API + '/api/report', { method: 'POST',
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (r.ok) toast('Отчёт улетел в Telegram.', 'ri-telegram-fill');
-      else toast('Не отправилось — доступ не подтверждён.', 'ri-error-warning-line');
+      else {
+        let m = 'Не отправилось — доступ не подтверждён.';
+        try { const j = await r.json();
+          if (j.reason === 'banned') m = 'Ты в бане' + (j.msg ? ': ' + j.msg : '') + '. Отчёт не принят — скопируй его текст.';
+          if (j.reason === 'lock') m = 'Техработы' + (j.msg ? ': ' + j.msg : '') + '. Отчёт не принят — скопируй текст, отправишь после открытия.';
+        } catch (e) {}
+        toast(m, 'ri-error-warning-line');
+      }
     } catch (e) {
       toast('Сервер недоступен — скопируй отчёт вручную.', 'ri-error-warning-line');
     }
@@ -2539,4 +2617,4 @@ const TG_SESSION = { mode: null, initData: null, name: null };
 window.__aresReady = true;
 </script>
 </body>
-                                                                     </html>
+  </html>
