@@ -22,7 +22,7 @@ setTimeout(function(){ if(!window.__aresReady) document.documentElement.classLis
 :root{
   --bg:#0a0a0b; --bg2:#0f0f11; --panel:#131315;
   --line:#212125; --line2:#38383e;
-  --txt:#f1efe9; --silver:#b9bcc2; --dim:#84878d; 
+  --txt:#f1efe9; --silver:#b9bcc2; --dim:#84878d;
   --red:#e10600; --red-hi:#ff3b2a; --red-deep:#8f0800;
   --it-g:#008C45; --it-w:#F4F5F0; --it-r:#CD212A;
   --fh:'Oswald',sans-serif; --fb:'Inter',sans-serif; --fm:'JetBrains Mono',monospace;
@@ -233,7 +233,7 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .b-head h4{font-family:var(--fh);font-weight:600;font-size:clamp(1.15rem,1.8vw,1.45rem);letter-spacing:.03em;text-transform:uppercase;line-height:1.15}
 .b-eq-wrap{font-family:var(--fm);font-size:9px;letter-spacing:.14em;border:1px solid var(--line2);padding:5px 9px;color:var(--silver);white-space:nowrap;display:inline-flex;align-items:center;gap:8px;text-transform:uppercase;transition:border-color .2s}
 .b-eq-wrap:hover{border-color:var(--dim)}
-.b-eq-wrap.panatta::before{content:"";width:15px;height:9px;flex:none;background:linear-gradient(90deg,var(--it-g) 0 33.4%,var(--it-w) 33.4% 66.7%,var(--it-r) 66.7%)}
+.b-eq-wrap.panatta::before{content:"";width:15px;height:9px;flex:none;background:linear-gradient(90deg,var(--it-g) 0 33.4%,var(--it-w) 33.4% 66.7%,var(--it-r) 66.7% 100%)}
 .b-eq-in{background:transparent;border:0;color:var(--silver);font:inherit;letter-spacing:inherit;text-transform:inherit;min-width:6ch;padding:0;transition:color .2s}
 .b-eq-in:hover{color:var(--txt)}
 .b-eq-in:focus{outline:0;color:var(--txt);border-bottom:1px solid var(--red)}
@@ -401,7 +401,7 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .cm-foot{display:flex;gap:14px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .cm-hint{font:500 9px var(--fm);letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
 
-.tri-line{height:4px;background:linear-gradient(90deg,var(--it-g) 0 33.4%,var(--it-w) 33.4% 66.7%,var(--it-r) 66.7%)}
+.tri-line{height:4px;background:linear-gradient(90deg,var(--it-g) 0 33.4%,var(--it-w) 33.4% 66.7%,var(--it-r) 66.7% 100%)}
 .tape{height:8px;background:repeating-linear-gradient(-45deg,var(--red) 0 12px,var(--bg) 12px 24px)}
 footer{background:var(--bg2)}
 .foot-grid{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;padding:34px 0 26px}
@@ -449,7 +449,7 @@ footer{background:var(--bg2)}
 .gy-ghost:hover{color:var(--txt);border-color:var(--dim)}
 .gy-ghost:disabled{opacity:.3;cursor:default}
 .gy-rest-k{display:inline-flex;gap:10px;align-items:center;font:700 11px var(--fm);letter-spacing:.26em;color:var(--red-hi);text-transform:uppercase}
-.gy-timer{font:700 clamp(4rem,21vw,9rem)/1 var(--fm);color:var(--txt);cursor:pointer;user-select:none;-webkit-user-select:none;padding:10px 20px;transition:color .2s;font-variant-numeric:tabular-nums}
+.gy-timer{font:700 clamp(4.8rem,27vw,12rem)/1 var(--fm);color:var(--txt);cursor:pointer;user-select:none;-webkit-user-select:none;padding:10px 12px;transition:color .2s;font-variant-numeric:tabular-nums}
 .gy-timer:hover{color:var(--red-hi)}
 .gy-timer.zero{color:var(--red-hi);animation:pulse 1s infinite}
 .gy-tap{font:500 9.5px var(--fm);letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
@@ -1471,7 +1471,7 @@ const PROGRAMS = [
         {w:'45', r:'4', t:'Взрыв'}
       ]},
     { name:'Пуловер', atlas:'pullover', eq:'TECHNOGYM',
-      sets:[ {w:'40', r:'15'}, {w:'50', r:'12'}, {w:'55', r:'8–10'} ]},
+      sets:[ {w:'40', r:'15'}, {w:'50', r:'12'}, {w:'70', r:'8–10'} ]},
     { name:'Бицепс', atlas:'bicep-panatta', eq:'PANATTA · БИЦЕПС',
       sets:[
         {w:'30', r:'12', t:'Негатив · технично, максимально подконтрольно'},
@@ -1482,9 +1482,9 @@ const PROGRAMS = [
       note:'Чередуй варианты от тренировки к тренировке.',
       variants:{
         a:{ name:'Смена положения', sets:[
-          {w:'—', r:'12', t:'Взрыв + пауза + негатив'},
-          {w:'—', r:'10', t:'Взрыв + пауза'},
-          {w:'—', r:'8',  t:'Взрыв'}
+          {w:'20', r:'12', t:'Взрыв + пауза + негатив'},
+          {w:'30', r:'8',  t:'Взрыв + пауза'},
+          {w:'20', r:'8',  t:'Взрыв'}
         ]},
         b:{ name:'Скотт · узко · все взрывные', sets:[
           {w:'35', r:'10', t:'Пауза в верхней точке + негатив'},
@@ -2459,7 +2459,7 @@ function startRest(nextRow) {
 function paintTimer() {
   const t = $('#gyTimer'); if (!t) return;
   t.textContent = fmtDur(Math.max(0, gym.remain));
-  if (gym.remain <= 0) t.classList.add('zero');
+  t.classList.toggle('zero', gym.remain <= 0);
 }
 function endRestAccum() {
   if (gym.restTs) {
@@ -2529,7 +2529,7 @@ gymEl.addEventListener('click', e => {
   else if (act === 'back') { if (gym.idx > 0) { gym.idx--; setDoneRow(gym.rows[gym.idx], false); renderGym(); } }
   else if (act === 'skip') { gym.idx = nextIdx(gym.idx + 1); gym.idx >= gym.rows.length ? renderFinish() : renderGym(); }
   else if (act === 'rest-skip') { endRestAccum(); gym.idx = nextIdx(gym.idx + 1); gym.idx >= gym.rows.length ? renderFinish() : renderGym(); }
-  else if (act === 'p30') { gym.remain += 30; paintTimer(); }
+  else if (act === 'p30') { setRest(gym.remain + 30); }
   else if (act === 'report') { const pid = gym.pid; closeGym(); openReport(pid); }
 });
  $('#gyClose').addEventListener('click', closeGym);
@@ -2825,9 +2825,13 @@ window.ARES_BLOCKS = {};
   const wa = window.Telegram && window.Telegram.WebApp;
   if (wa) { try { wa.ready(); wa.expand(); } catch (e) {} }
   const gate = $('#gateModal'), body = $('#gateBody');
-  let tmIv = null;
+  let tmIv = null, rcIv = null;
   const show = html => { body.innerHTML = html; gate.classList.add('open'); refreshLock(); };
-  const hide = () => { if (tmIv) { clearInterval(tmIv); tmIv = null; } gate.classList.remove('open'); refreshLock(); };
+  const hide = () => {
+    if (tmIv) { clearInterval(tmIv); tmIv = null; }
+    if (rcIv) { clearInterval(rcIv); rcIv = null; }
+    gate.classList.remove('open'); refreshLock();
+  };
 
   function countdown(until) {
     if (tmIv) { clearInterval(tmIv); tmIv = null; }
@@ -2840,7 +2844,23 @@ window.ARES_BLOCKS = {};
     };
     tick(); tmIv = setInterval(tick, 1000);
   }
-  function blockScreen(kind, reason, until) {
+  /* авто-перепроверка блокировки раз в 20 сек: блок сняли раньше срока — страница обновится сама */
+  function startRecheck(clearFn) {
+    if (rcIv) clearInterval(rcIv);
+    rcIv = setInterval(async () => {
+      if (!gate.classList.contains('open')) { if (rcIv) { clearInterval(rcIv); rcIv = null; } return; }
+      try {
+        const wa2 = window.Telegram && window.Telegram.WebApp;
+        const pay = (wa2 && wa2.initData) ? { initData: wa2.initData } : { code: localStorage.getItem('ARES_CODE_V1') || '' };
+        const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pay) });
+        if (!r.ok) return;
+        const d = await r.json().catch(() => ({}));
+        if (clearFn(d)) location.reload();
+      } catch (e) {}
+    }, 20000);
+  }
+  function blockScreen(kind, reason, until, clearFn) {
     const t = kind === 'ban' ? 'ДОСТУП ПРИОСТАНОВЛЕН' : 'ТЕХ РАБОТЫ';
     show(`
       <span class="dat-label" style="color:var(--red-hi)">${t}</span>
@@ -2849,10 +2869,11 @@ window.ARES_BLOCKS = {};
       <p class="dat-p" style="font:700 26px var(--fh);color:var(--red-hi)" id="gateTm">…</p>`);
     if (until) countdown(until);
     else { const e = document.getElementById('gateTm'); if (e) e.textContent = 'до решения владельца'; }
+    if (clearFn) startRecheck(clearFn);
   }
   window.aresShowBlock = pid => {
     const b = TG_SESSION.blocks[pid]; if (!b) return;
-    blockScreen('lock', b.reason, b.until);
+    blockScreen('lock', b.reason, b.until, d => !(d.blocks && d.blocks[pid]));
   };
   function applyBlocks(blocks) {
     window.ARES_BLOCKS = blocks || {}; TG_SESSION.blocks = blocks || {};
@@ -2897,8 +2918,8 @@ window.ARES_BLOCKS = {};
     });
   }
   async function handleState(d, mode, initData) {
-    if (d.ban) { blockScreen('ban', d.ban.reason, d.ban.until); return false; }
-    if (d.lock) { blockScreen('lock', d.lock.reason, d.lock.until); return false; }
+    if (d.ban) { blockScreen('ban', d.ban.reason, d.ban.until, x => !x.lock && !x.ban); return false; }
+    if (d.lock) { blockScreen('lock', d.lock.reason, d.lock.until, x => !x.lock && !x.ban); return false; }
     TG_SESSION.mode = mode; TG_SESSION.initData = initData || null;
     TG_SESSION.name = d.user && d.user.name;
     applyBlocks(d.blocks || {});
@@ -2966,4 +2987,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-</html>
+  </html>
