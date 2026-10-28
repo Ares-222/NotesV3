@@ -209,17 +209,9 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .atlas-toggle.open i.at-down{transform:rotate(180deg)}
 .atlas{margin:4px 0 8px 52px;border:1px solid var(--line2);background:var(--bg2);padding:14px}
 .atlas-imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.atlas-imgs figure:only-child{grid-column:1/-1}
-.atlas-imgs figure:only-child img{aspect-ratio:auto;max-height:70vh;width:auto;max-width:100%;margin-inline:auto}
-.atlas{scroll-margin-top:96px}
-.eq-row span[data-jump]{cursor:pointer;border-bottom:1px dashed rgba(255,59,42,.45);padding-bottom:1px;transition:color .2s}
-.eq-row span[data-jump]:hover{color:var(--red-hi)}
-.block.flash{animation:blkFlash 1.4s ease 1}
-@keyframes blkFlash{0%,55%{background:rgba(225,6,0,.08)}100%{background:transparent}}
 .atlas-imgs figure{margin:0;border:1px solid var(--line2);background:#000;overflow:hidden;position:relative}
 .atlas-imgs img{width:100%;aspect-ratio:3/4;object-fit:contain;display:block}
 .atlas-imgs figcaption{position:absolute;left:0;top:0;font:700 8px var(--fm);letter-spacing:.18em;background:rgba(0,0,0,.72);color:var(--red-hi);padding:4px 8px;text-transform:uppercase}
-.atlas-nophoto{grid-column:1/-1;margin:2px 0 0;font:500 10px var(--fm);letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
 .atlas-m p{margin:0 0 7px;font-size:13px;color:var(--silver);line-height:1.6}
 .atlas-m .am-main b{color:var(--red-hi)}
 .atlas-m .am-sec b{color:var(--txt)}
@@ -1108,7 +1100,7 @@ footer{background:var(--bg2)}
       <header class="sec-head" data-reveal>
         <div class="kicker"><span class="idx">05</span> ТЕРМИНЫ · ТЕХНИКА · ТРЕНАЖЁРЫ <span class="rule"></span> <span class="tri"></span></div>
         <h2 class="sec-title">СПРАВОЧНИК <span class="o">ARES.</span></h2>
-        <p class="sec-desc" style="margin-top:16px">Что значат записи в программах и где живёт каждый тренажёр. Атлас упражнений с мышцами и фото — прямо в программах: тап по «АТЛАС УПРАЖНЕНИЯ». Тап по названию тренажёра в списке ниже — прыжок к блоку с раскрытым атласом.</p>
+        <p class="sec-desc" style="margin-top:16px">Что значат записи в программах и где живёт каждый тренажёр. Атлас упражнений с мышцами и техникой — прямо в программах: тап по «АТЛАС УПРАЖНЕНИЯ».</p>
       </header>
 
       <div class="gloss-grid" data-reveal>
@@ -1168,7 +1160,7 @@ footer{background:var(--bg2)}
 
       <div class="eq-links" data-reveal>
         <h3><i class="ri-external-link-line"></i> ТРЕНАЖЁРЫ — ОФИЦИАЛЬНЫЕ СТРАНИЦЫ</h3>
-        <p class="dat-p">Где живёт каждое железо из программ: характеристики, фото, описание от производителя. Тап по названию — прыжок к атласу упражнения.</p>
+        <p class="dat-p">Где живёт каждое железо из программ: характеристики, фото, описание от производителя.</p>
         <div class="eq-row"><span>Бицепс Panatta</span><a href="https://www.panattasport.com/en/free-weight-special/three-angles-bicep-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
         <div class="eq-row"><span>Сведение Panatta лёжа</span><a href="https://www.panattasport.com/en/free-weight-special/super-middle-chest-flight-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
         <div class="eq-row"><span>Французский жим</span><a href="https://www.panattasport.com/en/free-weight-special/super-french-press-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
@@ -1627,8 +1619,8 @@ function getProg(pid) {
 }
 
 /* ================= АТЛАС УПРАЖНЕНИЙ =================
-   img1 — выполнение, img2 — карта мышц (Atlas/<slug>-1.jpg / -2.jpg).
-   Если Atlas/ не отвечает, картинка пробует atlas/ — регистр папки не важен. */
+   img1 — выполнение, img2 — карта мышц (atlas/<slug>-1.jpg / -2.jpg).
+   Картинки подхватываются сами, как только зальёшь их в папку atlas/. */
 const ATLAS = {
   'flight-panatta': {
     name:'Сведение Panatta лёжа',
@@ -1707,14 +1699,13 @@ const ATLAS = {
   }
 };
 const ATLAS_TIP = 'Техника выше веса. Увеличивается вес тогда, когда сможешь с идеальной техникой сделать 12 повторений.';
-const ATLAS_IMG_ERR = "if(this.dataset.alt){this.src=this.dataset.alt;delete this.dataset.alt}else{var f=this.closest('figure');if(f)f.remove()}";
 function atlasHTML(slug) {
   const a = ATLAS[slug]; if (!a) return '';
   return `<button class="atlas-toggle" data-atlas-toggle="${slug}"><i class="ri-book-open-line"></i> АТЛАС УПРАЖНЕНИЯ <i class="ri-arrow-down-s-line at-down"></i></button>
   <div class="atlas" data-atlas-box="${slug}" hidden>
     <div class="atlas-imgs">
-      <figure><img src="Atlas/${slug}-1.jpg" data-alt="atlas/${slug}-1.jpg" loading="lazy" alt="Выполнение: ${escA(a.name)}" onerror="${ATLAS_IMG_ERR}"><figcaption>ВЫПОЛНЕНИЕ</figcaption></figure>
-      <figure><img src="Atlas/${slug}-2.jpg" data-alt="atlas/${slug}-2.jpg" loading="lazy" alt="Мышцы: ${escA(a.name)}" onerror="${ATLAS_IMG_ERR}"><figcaption>МЫШЦЫ</figcaption></figure>
+      <figure><img src="atlas/${slug}-1.jpg" loading="lazy" alt="Выполнение: ${escA(a.name)}" onerror="this.closest('figure').remove()"><figcaption>ВЫПОЛНЕНИЕ</figcaption></figure>
+      <figure><img src="atlas/${slug}-2.jpg" loading="lazy" alt="Мышцы: ${escA(a.name)}" onerror="this.closest('figure').remove()"><figcaption>МЫШЦЫ</figcaption></figure>
     </div>
     <div class="atlas-m">
       <p class="am-main"><b>Основные:</b> ${escA(a.main)}</p>
@@ -1954,32 +1945,15 @@ addEventListener('resize', debounce(() => {
   $$('.panel.open').forEach(p => { p.style.maxHeight = p.scrollHeight + 'px'; });
 }, 150));
 
-/* тап по «АТЛАС УПРАЖНЕНИЯ» — поиск карточки внутри своего блока (фикс пресса) */
+/* тап по «АТЛАС УПРАЖНЕНИЯ» */
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-atlas-toggle]');
   if (!t) return;
-  const blk = t.closest('.block');
-  const box = blk ? blk.querySelector('[data-atlas-box="' + t.dataset.atlasToggle + '"]') : null;
+  const box = document.querySelector('[data-atlas-box="' + t.dataset.atlasToggle + '"]');
   if (!box) return;
   box.hidden = !box.hidden;
   t.classList.toggle('open', !box.hidden);
   refreshPanelHeight(t);
-  if (!box.hidden) {
-    const grid = $('.atlas-imgs', box);
-    $$('img', box).forEach(img => {
-      if (img.complete) return;
-      img.addEventListener('load', () => refreshPanelHeight(box), { once: true });
-      img.addEventListener('error', () => {
-        setTimeout(() => {
-          refreshPanelHeight(box);
-          if (grid && !grid.children.length && !grid.dataset.nophoto) {
-            grid.dataset.nophoto = '1';
-            grid.insertAdjacentHTML('beforeend', '<p class="atlas-nophoto">фото появится позже · мышцы и техника — выше</p>');
-          }
-        }, 0);
-      }, { once: true });
-    });
-  }
 });
 
 /* ================= ТРЕКЕР ================= */
@@ -2952,55 +2926,6 @@ window.ARES_BLOCKS = {};
       toast('Сервер недоступен — скопируй отчёт вручную.', 'ri-error-warning-line');
     }
     btn.disabled = false;
-  });
-})();
-
-/* ================= СПРАВОЧНИК → ПРЫЖОК К АТЛАСУ ================= */
-(function initGlossaryJump(){
-  const MAP = {
-    'Бицепс Panatta':['pull',4],
-    'Сведение Panatta лёжа':['push',1],
-    'Французский жим':['push',4],
-    'Х-тяга':['pull',1],
-    'Отведение плеча':['push',3],
-    'Трицепс Panatta':['push',5],
-    'Пресс Panatta':['push',6],
-    'Жим от плеч':['push',2],
-    'Т-гриф':['pull',0],
-    'Горизонтальная тяга с подвижными ручками':['pull',2],
-    'Пуловер Technogym':['pull',3],
-    'Сгибания ног':['legs',2],
-    'Разгибания ног':['legs',0],
-    'Тренажёр «Колодец»':['legs',1],
-    'Подъём на бицепс 45°':['legs',5]
-  };
-  $$('.eq-links .eq-row').forEach(row => {
-    const span = $('span', row);
-    const hit = span && MAP[span.textContent.trim()];
-    if (!hit) return;
-    span.dataset.jump = '1';
-    span.addEventListener('click', () => {
-      const [pid, idx] = hit;
-      const panel = document.getElementById('panel-' + pid);
-      if (!panel) return;
-      const wasOpen = panel.classList.contains('open');
-      if (!wasOpen) {
-        const card = document.querySelector('.pcard[data-target="' + pid + '"]');
-        if (card) card.click();
-      }
-      setTimeout(() => {
-        const blk = $$('#panel-' + pid + ' .block')[idx];
-        if (!blk) return;
-        const tgl = $('[data-atlas-toggle]', blk);
-        const box = tgl ? blk.querySelector('[data-atlas-box="' + tgl.dataset.atlasToggle + '"]') : null;
-        if (tgl && box && box.hidden) tgl.click(); /* раскрыть атлас */
-        setTimeout(() => {
-          const target = (box && !box.hidden) ? box : blk;
-          target.scrollIntoView({ behavior: PRM ? 'auto' : 'smooth', block: 'start' });
-          blk.classList.remove('flash'); void blk.offsetWidth; blk.classList.add('flash');
-        }, tgl && box && box.hidden ? 60 : 0);
-      }, wasOpen ? 60 : 420);
-    });
   });
 })();
 
