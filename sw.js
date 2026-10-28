@@ -1,10 +1,10 @@
 /* ============================================================
-   ARES GYM — service worker v13
-   Начиная с этой версии файл sw.js больше НЕ нужно редактировать:
-   страницы тянутся по сети вперёд (кэш — только офлайн-фолбэк),
-   поэтому любое обновление index.html подхватывается само.
+   ARES GYM — service worker (network-first)
+   Страницы тянутся по сети вперёд (кэш — офлайн-фолбэк):
+   любые правки index.html подхватываются сами. VER поднимать
+   нужно только при изменении логики самого sw.js.
    ============================================================ */
-const VER = 'ares-v18';
+const VER = 'ares-v19';
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -50,14 +50,15 @@ self.addEventListener('fetch', e => {
   /* Статика (фото Atlas/, иконки, manifest): кэш вперёд + тихое фоновое обновление */
   e.respondWith(
     caches.match(req).then(hit => {
-      const net = fetch(req).then(res => {
+      const netP = fetch(req).then(res => {
         if (res && res.ok) {
           const copy = res.clone();
-          e.waitUntil(caches.open(VER).then(c => c.put(req, copy)).catch(() => {}));
+          return caches.open(VER).then(c => { c.put(req, copy); return res; });
         }
         return res;
-      }).catch(() => hit || caches.match('./'));
-      return hit || net;
+      });
+      e.waitUntil(netP.catch(() => {})); /* держит событие живым, пока кэш обновляется */
+      return hit || netP.catch(() => hit || caches.match('./'));
     })
   );
 });
