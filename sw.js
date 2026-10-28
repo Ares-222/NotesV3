@@ -1,9 +1,10 @@
-const CACHE = 'ares-gym-v11';
+const CACHE = 'ares-gym-v13';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
+
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
@@ -11,15 +12,38 @@ self.addEventListener('activate', e => {
       .then(() => self.clients.claim())
   );
 });
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  const accept = e.request.headers.get('accept') || '';
+  const isPage = e.request.mode === 'navigate' || accept.includes('text/html');
+
+  /* Страницы: сначала сеть — HTML всегда свежий. Нет сети → кэш. */
+  if (isPage) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(e.request).then(hit => hit || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  /* Фото, стили, шрифты: кэш → сеть. Неудачные ответы (404 и т.п.) в кэш НЕ пишутся. */
   e.respondWith(
     caches.match(e.request).then(hit => hit ||
       fetch(e.request).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        if (res && (res.ok || res.type === 'opaque')) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        }
         return res;
-      }).catch(() => caches.match('./index.html'))
+      })
     )
   );
 });
