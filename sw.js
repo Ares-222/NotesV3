@@ -1,49 +1,63 @@
-const CACHE = 'ares-gym-v17';
-const ASSETS = ['./', './index.html', './manifest.json'];
+/* ============================================================
+   ARES GYM — service worker v13
+   Начиная с этой версии файл sw.js больше НЕ нужно редактировать:
+   страницы тянутся по сети вперёд (кэш — только офлайн-фолбэк),
+   поэтому любое обновление index.html подхватывается само.
+   ============================================================ */
+const VER = 'ares-v18';
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(VER)
+      .then(c => c.add(new Request('./', { cache: 'reload' })).catch(() => {}))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k !== VER).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  const accept = e.request.headers.get('accept') || '';
-  const isPage = e.request.mode === 'navigate' || accept.includes('text/html');
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== location.origin) return; /* внешние ссылки не трогаем */
 
-  /* Страницы: сначала сеть — HTML всегда свежий. Нет сети → кэш. */
-  if (isPage) {
+  const accept = req.headers.get('accept') || '';
+  const isNav = req.mode === 'navigate' || accept.includes('text/html');
+
+  /* Страницы (само приложение): сеть вперёд, кэш — офлайн-фолбэк */
+  if (isNav) {
     e.respondWith(
-      fetch(e.request)
+      fetch(req, { cache: 'reload' })
         .then(res => {
           if (res && res.ok) {
             const copy = res.clone();
-            caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+            e.waitUntil(caches.open(VER).then(c => c.put('./', copy)).catch(() => {}));
           }
           return res;
         })
-        .catch(() => caches.match(e.request).then(hit => hit || caches.match('./index.html')))
+        .catch(() => caches.match('./').then(hit => hit || Response.error()))
     );
     return;
   }
 
-  /* Фото, стили, шрифты: кэш → сеть. Неудачные ответы (404 и т.п.) в кэш НЕ пишутся. */
+  /* Статика (фото Atlas/, иконки, manifest): кэш вперёд + тихое фоновое обновление */
   e.respondWith(
-    caches.match(e.request).then(hit => hit ||
-      fetch(e.request).then(res => {
-        if (res && (res.ok || res.type === 'opaque')) {
+    caches.match(req).then(hit => {
+      const net = fetch(req).then(res => {
+        if (res && res.ok) {
           const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+          e.waitUntil(caches.open(VER).then(c => c.put(req, copy)).catch(() => {}));
         }
         return res;
-      })
-    )
+      }).catch(() => hit || caches.match('./'));
+      return hit || net;
+    })
   );
 });
