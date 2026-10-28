@@ -1,4 +1,4 @@
-const CACHE = 'ares-gym-v16';
+const CACHE = 'ares-gym-v17';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
