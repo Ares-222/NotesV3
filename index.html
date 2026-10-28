@@ -208,7 +208,7 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .atlas-toggle i.at-down{transition:transform .25s}
 .atlas-toggle.open i.at-down{transform:rotate(180deg)}
 .atlas{margin:4px 0 8px 52px;border:1px solid var(--line2);background:var(--bg2);padding:14px}
-.atlas-imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.atlas-imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
 .atlas-imgs figure{margin:0;border:1px solid var(--line2);background:#000;overflow:hidden;position:relative}
 .atlas-imgs img{width:100%;aspect-ratio:3/4;object-fit:contain;display:block}
 .atlas-imgs figcaption{position:absolute;left:0;top:0;font:700 8px var(--fm);letter-spacing:.18em;background:rgba(0,0,0,.72);color:var(--red-hi);padding:4px 8px;text-transform:uppercase}
@@ -425,6 +425,7 @@ footer{background:var(--bg2)}
 .gy-w,.gy-r{background:transparent;border:0;border-bottom:2px dashed transparent;color:var(--txt);text-align:center;padding:0 4px 6px;transition:border-color .2s}
 .gy-w{font:700 clamp(4.2rem,19vw,9.5rem)/0.9 var(--fh);letter-spacing:.01em}
 .gy-r{font:700 clamp(3.4rem,15vw,7.5rem)/0.9 var(--fh);color:var(--silver)}
+.gy-x{font:300 clamp(1.8rem,7vw,3.4rem)/1 var(--fh);color:var(--silver);opacity:.5;padding:0 2px}
 .gy-w:focus,.gy-r:focus{outline:0;border-bottom-color:var(--red)}
 .gy-edit-hint{font:500 8.5px var(--fm);letter-spacing:.22em;color:#5a5d63;text-transform:uppercase;margin-top:-4px}
 .gy-tech{color:var(--dim);font-size:clamp(.85rem,2vw,1rem);max-width:40ch}
@@ -1319,7 +1320,6 @@ footer{background:var(--bg2)}
 </div>
 
 <div id="toasts" aria-live="polite"></div>
-
 <script>
 /* ================= ХЕЛПЕРЫ ================= */
 const $  = (s, c = document) => c.querySelector(s);
@@ -1619,8 +1619,10 @@ function getProg(pid) {
 }
 
 /* ================= АТЛАС УПРАЖНЕНИЙ =================
-   img1 — выполнение, img2 — карта мышц (atlas/<slug>-1.jpg / -2.jpg).
-   Картинки подхватываются сами, как только зальёшь их в папку atlas/. */
+   Фото-карточки подхватываются сами: <slug>-1.jpg — выполнение,
+   <slug>-2.jpg — карта мышц. Пробуются оба варианта папки — «Atlas/»
+   и «atlas/» (на GitHub Pages путь регистрозависим!). Нет файла —
+   карточка просто не показывается, блок не ломается. */
 const ATLAS = {
   'flight-panatta': {
     name:'Сведение Panatta лёжа',
@@ -1699,13 +1701,16 @@ const ATLAS = {
   }
 };
 const ATLAS_TIP = 'Техника выше веса. Увеличивается вес тогда, когда сможешь с идеальной техникой сделать 12 повторений.';
+function atlasFig(slug, n, cap, alt) {
+  return `<figure><img src="Atlas/${slug}-${n}.jpg" loading="lazy" alt="${escA(alt)}" data-fb="atlas/${slug}-${n}.jpg" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.removeAttribute('data-fb')}else{this.closest('figure').remove()}"><figcaption>${cap}</figcaption></figure>`;
+}
 function atlasHTML(slug) {
   const a = ATLAS[slug]; if (!a) return '';
   return `<button class="atlas-toggle" data-atlas-toggle="${slug}"><i class="ri-book-open-line"></i> АТЛАС УПРАЖНЕНИЯ <i class="ri-arrow-down-s-line at-down"></i></button>
   <div class="atlas" data-atlas-box="${slug}" hidden>
     <div class="atlas-imgs">
-      <figure><img src="atlas/${slug}-1.jpg" loading="lazy" alt="Выполнение: ${escA(a.name)}" onerror="this.closest('figure').remove()"><figcaption>ВЫПОЛНЕНИЕ</figcaption></figure>
-      <figure><img src="atlas/${slug}-2.jpg" loading="lazy" alt="Мышцы: ${escA(a.name)}" onerror="this.closest('figure').remove()"><figcaption>МЫШЦЫ</figcaption></figure>
+      ${atlasFig(slug, 1, 'ВЫПОЛНЕНИЕ', 'Выполнение: ' + a.name)}
+      ${atlasFig(slug, 2, 'МЫШЦЫ', 'Мышцы: ' + a.name)}
     </div>
     <div class="atlas-m">
       <p class="am-main"><b>Основные:</b> ${escA(a.main)}</p>
@@ -1949,7 +1954,8 @@ addEventListener('resize', debounce(() => {
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-atlas-toggle]');
   if (!t) return;
-  const box = document.querySelector('[data-atlas-box="' + t.dataset.atlasToggle + '"]');
+  const scope = t.closest('section.block') || document;
+  const box = scope.querySelector('[data-atlas-box="' + t.dataset.atlasToggle + '"]');
   if (!box) return;
   box.hidden = !box.hidden;
   t.classList.toggle('open', !box.hidden);
@@ -2932,4 +2938,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-  </html>
+</html>
