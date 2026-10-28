@@ -218,6 +218,13 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .atlas-m .am-note{color:var(--silver)}
 .atlas-m .am-tip{border-top:1px dashed var(--line2);padding-top:9px;margin-top:10px;margin-bottom:0;color:var(--txt);font-weight:600;font-size:12.5px;display:flex;gap:8px;align-items:baseline}
 .atlas-m .am-tip i{color:var(--red-hi);flex:none;transform:translateY(1px)}
+/* тап по названию тренажёра в справочнике → атлас */
+.eq-row span[data-atlas-jump]{cursor:pointer;border-bottom:1px dotted rgba(255,59,42,.5);padding-bottom:2px;transition:color .2s}
+.eq-row span[data-atlas-jump]:hover{color:var(--red-hi)}
+.eq-row span[data-atlas-jump] i{font-size:11px;margin-left:6px;color:var(--red-hi);vertical-align:1px}
+.atlas-flash{animation:atlasFlash 1.7s ease}
+@keyframes atlasFlash{0%,55%{border-color:var(--red);box-shadow:0 0 0 1px rgba(225,6,0,.5),0 0 22px rgba(225,6,0,.2)}100%{border-color:var(--line2);box-shadow:none}}
+@media (prefers-reduced-motion:reduce){.atlas-flash{animation:none}}
 
 .block{border-top:1px solid var(--line);padding:18px 0 14px}
 .block:first-of-type{border-top:0;padding-top:14px}
@@ -1161,22 +1168,22 @@ footer{background:var(--bg2)}
 
       <div class="eq-links" data-reveal>
         <h3><i class="ri-external-link-line"></i> ТРЕНАЖЁРЫ — ОФИЦИАЛЬНЫЕ СТРАНИЦЫ</h3>
-        <p class="dat-p">Где живёт каждое железо из программ: характеристики, фото, описание от производителя.</p>
-        <div class="eq-row"><span>Бицепс Panatta</span><a href="https://www.panattasport.com/en/free-weight-special/three-angles-bicep-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
-        <div class="eq-row"><span>Сведение Panatta лёжа</span><a href="https://www.panattasport.com/en/free-weight-special/super-middle-chest-flight-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
-        <div class="eq-row"><span>Французский жим</span><a href="https://www.panattasport.com/en/free-weight-special/super-french-press-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
-        <div class="eq-row"><span>Х-тяга</span><a href="https://www.panattasport.com/en/free-weight-special/super-lat-pulldown-circular/" target="_blank" rel="noopener">Panatta ↗</a></div>
-        <div class="eq-row"><span>Отведение плеча</span><a href="https://www.panattasport.com/en/fit-evo/standing-multi-flight/" target="_blank" rel="noopener">Panatta ↗</a></div>
-        <div class="eq-row"><span>Трицепс Panatta</span><a href="https://www.panattasport.com/en/free-weight-special/alternate-triceps-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
-        <div class="eq-row"><span>Пресс Panatta</span><a href="https://sportres.ru/product/press-panatta-1hp565/" target="_blank" rel="noopener">Sportres ↗</a></div>
-        <div class="eq-row"><span>Жим от плеч</span><a href="https://goldgym.ru/catalog/power/pure-strength-shoulder-press/" target="_blank" rel="noopener">GoldGym ↗</a></div>
-        <div class="eq-row"><span>Т-гриф</span><a href="https://goldgym.ru/catalog/power/pure-strength-t-bar-row/" target="_blank" rel="noopener">GoldGym ↗</a></div>
-        <div class="eq-row"><span>Горизонтальная тяга с подвижными ручками</span><a href="https://sportres.ru/product/gorizontalnaya-tyaga-krugovaya-versiya-super-panatta-1fw204/" target="_blank" rel="noopener">Sportres ↗</a></div>
-        <div class="eq-row"><span>Пуловер Technogym</span><a href="https://goldgym.ru/catalog/trenazhery-s-probegom/pulover-technogym-pure-strenght-pullover/" target="_blank" rel="noopener">GoldGym ↗</a></div>
-        <div class="eq-row"><span>Сгибания ног</span><a href="https://goldgym.ru/catalog/power/selection900-leg-curl/" target="_blank" rel="noopener">GoldGym ↗</a></div>
-        <div class="eq-row"><span>Разгибания ног</span><a href="https://goldgym.ru/catalog/power/selection700-leg-extension/" target="_blank" rel="noopener">GoldGym ↗</a></div>
-        <div class="eq-row"><span>Тренажёр «Колодец»</span><a href="https://goldgym.ru/catalog/power/loaded/booty-pump-prisedaniya-s-poyasom-kolodets-/" target="_blank" rel="noopener">GoldGym ↗</a></div>
-        <div class="eq-row"><span>Подъём на бицепс 45°</span><a href="https://gym-training.com/ru/uprazhnenie-podem-ganteley-na-biceps-sidya-na-naklonnoy-skame/" target="_blank" rel="noopener">Gym-Training ↗</a></div>
+        <p class="dat-p">Где живёт каждое железо из программ: характеристики, фото, описание от производителя. <b style="color:var(--txt)">Тап по названию — атлас упражнения: описание, мышцы, фото.</b></p>
+        <div class="eq-row"><span data-atlas-jump="bicep-panatta">Бицепс Panatta<i class="ri-book-open-line"></i></span><a href="https://www.panattasport.com/en/free-weight-special/three-angles-bicep-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="flight-panatta">Сведение Panatta лёжа<i class="ri-book-open-line"></i></span><a href="https://www.panattasport.com/en/free-weight-special/super-middle-chest-flight-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="french-panatta">Французский жим<i class="ri-book-open-line"></i></span><a href="https://www.panattasport.com/en/free-weight-special/super-french-press-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="xrow">Х-тяга<i class="ri-book-open-line"></i></span><a href="https://www.panattasport.com/en/free-weight-special/super-lat-pulldown-circular/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="latraise-panatta">Отведение плеча<i class="ri-book-open-line"></i></span><a href="https://www.panattasport.com/en/fit-evo/standing-multi-flight/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="tricep-panatta">Трицепс Panatta<i class="ri-book-open-line"></i></span><a href="https://www.panattasport.com/en/free-weight-special/alternate-triceps-machine/" target="_blank" rel="noopener">Panatta ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="abs-panatta">Пресс Panatta<i class="ri-book-open-line"></i></span><a href="https://sportres.ru/product/press-panatta-1hp565/" target="_blank" rel="noopener">Sportres ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="ohp">Жим от плеч<i class="ri-book-open-line"></i></span><a href="https://goldgym.ru/catalog/power/pure-strength-shoulder-press/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="tbar">Т-гриф<i class="ri-book-open-line"></i></span><a href="https://goldgym.ru/catalog/power/pure-strength-t-bar-row/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="hrow">Горизонтальная тяга с подвижными ручками<i class="ri-book-open-line"></i></span><a href="https://sportres.ru/product/gorizontalnaya-tyaga-krugovaya-versiya-super-panatta-1fw204/" target="_blank" rel="noopener">Sportres ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="pullover">Пуловер Technogym<i class="ri-book-open-line"></i></span><a href="https://goldgym.ru/catalog/trenazhery-s-probegom/pulover-technogym-pure-strenght-pullover/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="legcurl">Сгибания ног<i class="ri-book-open-line"></i></span><a href="https://goldgym.ru/catalog/power/selection900-leg-curl/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="legext">Разгибания ног<i class="ri-book-open-line"></i></span><a href="https://goldgym.ru/catalog/power/selection700-leg-extension/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="kolodec">Тренажёр «Колодец»<i class="ri-book-open-line"></i></span><a href="https://goldgym.ru/catalog/power/loaded/booty-pump-prisedaniya-s-poyasom-kolodets-/" target="_blank" rel="noopener">GoldGym ↗</a></div>
+        <div class="eq-row"><span data-atlas-jump="incline">Подъём на бицепс 45°<i class="ri-book-open-line"></i></span><a href="https://gym-training.com/ru/uprazhnenie-podem-ganteley-na-biceps-sidya-na-naklonnoy-skame/" target="_blank" rel="noopener">Gym-Training ↗</a></div>
       </div>
     </div>
   </section>
@@ -1960,6 +1967,27 @@ document.addEventListener('click', e => {
   box.hidden = !box.hidden;
   t.classList.toggle('open', !box.hidden);
   refreshPanelHeight(t);
+});
+
+/* тап по названию тренажёра в справочнике «ЖЕЛЕЗО» → атлас упражнения */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-atlas-jump]');
+  if (!t) return;
+  const slug = t.dataset.atlasJump;
+  const box = document.querySelector('[data-atlas-box="' + slug + '"]');
+  if (!box) return;
+  const panel = box.closest('.panel');
+  const card = panel ? document.querySelector('.pcard[data-target="' + panel.id.replace('panel-', '') + '"]') : null;
+  const wasClosed = !!(panel && card && !panel.classList.contains('open'));
+  if (wasClosed) card.click();
+  const tog = box.parentElement.querySelector('[data-atlas-toggle="' + slug + '"]');
+  if (tog && box.hidden) tog.click();
+  else if (box.hidden) { box.hidden = false; refreshPanelHeight(box); }
+  setTimeout(() => {
+    box.scrollIntoView({ behavior: PRM ? 'auto' : 'smooth', block: 'center' });
+    box.classList.remove('atlas-flash'); void box.offsetWidth; box.classList.add('atlas-flash');
+    setTimeout(() => box.classList.remove('atlas-flash'), 1900);
+  }, wasClosed ? 620 : 80);
 });
 
 /* ================= ТРЕКЕР ================= */
