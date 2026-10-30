@@ -1267,6 +1267,7 @@ footer{background:var(--bg2)}
     <pre class="rp-pre" id="reportText"></pre>
     <footer class="rp-foot">
       <button class="btn-fin" id="repCopy"><i class="ri-file-copy-line"></i> СКОПИРОВАТЬ ВСЁ</button>
+      <button class="gy-ghost" id="repPhoto"><i class="ri-image-line"></i> ФОТОКАРТОЧКА</button>
       <button class="gy-ghost" id="repSendTG"><i class="ri-telegram-fill"></i> В TELEGRAM</button>
       <button class="gy-ghost" id="repClose2">ЗАКРЫТЬ</button>
     </footer>
@@ -1728,11 +1729,7 @@ function atlasHTML(slug) {
   </div>`;
 }
 
-/* ================= КАЛЬКУЛЯТОР 1ПМ =================
-   Проценты выведены из авторской программы.
-   Жим (1ПМ автора 115): 57 / 79 / 100 (сингл) / 87 (рабочие) / 79 / 74.
-   Тяга (1ПМ автора 90): фикс 20 / 45 / 67 / 88 / 45.
-   Вес = 1ПМ × % → округление вниз до блинов 2,5 кг. pct:0 = фиксированный вес. */
+/* ================= КАЛЬКУЛЯТОР 1ПМ ================= */
 const CALC_SPECS = {
   push: {
     title:'ЖИМ ЛЁЖА — РАСЧЁТ ОТ 1ПМ',
@@ -1926,7 +1923,6 @@ function closePanelEl(panel) {
   panel.classList.remove('open');
   panel.style.maxHeight = '0px';
 }
-/* пересчёт высоты открытой панели, когда внутри что-то развернулось */
 function refreshPanelHeight(el) {
   const panel = el && el.closest ? el.closest('.panel') : null;
   if (panel && panel.classList.contains('open')) panel.style.maxHeight = panel.scrollHeight + 'px';
@@ -1969,7 +1965,7 @@ document.addEventListener('click', e => {
   refreshPanelHeight(t);
 });
 
-/* тап по названию тренажёра в справочнике «ЖЕЛЕЗО» → атлас упражнения */
+/* тап по названию тренажёра в справочнике → атлас упражнения */
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-atlas-jump]');
   if (!t) return;
@@ -2126,7 +2122,7 @@ function calcApply(pid) {
     else w = r.fixed;
     const wi = $('.in-w', row);
     wi.value = w; fitInp(wi);
-    row.dataset.w0 = w; /* «Сброс дня» вернёт рассчитанные веса, а не авторские */
+    row.dataset.w0 = w;
     store[row.dataset.k] = Object.assign({}, store[row.dataset.k], { w: w });
   });
   saveStore();
@@ -2235,6 +2231,7 @@ function buildReport(pid) {
 const reportEl = $('#report');
 const dataEl = $('#dataModal');
 const planEl = $('#planModal');
+let reportPid = null;
 function refreshLock() {
   const on = document.body.classList.contains('menu-open') ||
              $('#gym').classList.contains('open') ||
@@ -2245,6 +2242,7 @@ function refreshLock() {
   document.documentElement.classList.toggle('no-scroll', on);
 }
 function openReport(pid) {
+  reportPid = pid;
   $('#reportText').textContent = buildReport(pid);
   reportEl.classList.add('open'); refreshLock();
 }
@@ -2815,8 +2813,172 @@ function copyText(text, label) {
 if (!LS_OK) setTimeout(() =>
   toast('Хранение закрыто (предпросмотр). Прогресс переживёт перезакрытие только через код «ДАННЫЕ · БЭКАП».', 'ri-database-2-line'), 2600);
 
-/* ================= MINI APP: доступ + баны + техработы + блоки =================
-   Адрес воркера Cloudflare. Если в дашборде он другой — поправь здесь. */
+/* ================= ФОТОКАРТОЧКА ТРЕНИРОВКИ =================
+   Рисуется на canvas шрифтами и палитрой клуба, уходит на воркер,
+   воркер отправляет фото в Telegram. Хранится в мини-аппе ноль байт. */
+function wrapText(x, text, font, maxW) {
+  x.font = font;
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = []; let cur = '';
+  for (const w of words) {
+    const t = cur ? cur + ' ' + w : w;
+    if (x.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; }
+    else cur = t;
+  }
+  if (cur) lines.push(cur);
+  return lines.length ? lines : [''];
+}
+async function renderCardJPEG(pid) {
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+  const p = getProg(pid);
+  const rows = listRows(pid);
+  let done = 0; rows.forEach(r => { if ($('.ck', r).checked) done++; });
+  const ton = computeTonnage(pid);
+  const now = new Date();
+  const when = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+  const W = 1080, MAXH = 4200, M = 72, CW = W - M * 2;
+  const c = document.createElement('canvas'); c.width = W; c.height = MAXH;
+  const x = c.getContext('2d');
+
+  x.fillStyle = '#0a0a0b'; x.fillRect(0, 0, W, MAXH);
+  const gr = x.createRadialGradient(W / 2, 240, 60, W / 2, 240, 900);
+  gr.addColorStop(0, 'rgba(225,6,0,0.16)'); gr.addColorStop(1, 'rgba(225,6,0,0)');
+  x.fillStyle = gr; x.fillRect(0, 0, W, MAXH);
+
+  let y = 100;
+  /* шапка: ромб + вордмарк + дата */
+  x.save(); x.translate(M + 14, y + 12); x.rotate(Math.PI / 4); x.fillStyle = '#e10600'; x.fillRect(-13, -13, 26, 26); x.restore();
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+  x.font = '700 72px Oswald, sans-serif';
+  x.fillStyle = '#f1efe9'; x.fillText('ARES', M + 52, y + 38);
+  const wA = x.measureText('ARES ').width;
+  x.fillStyle = '#e10600'; x.fillText('GYM', M + 52 + wA, y + 38);
+  x.textAlign = 'right';
+  x.font = '500 24px "JetBrains Mono", monospace'; x.fillStyle = '#84878d';
+  x.fillText(when, W - M, y + 14);
+  x.fillText('POWER · DISCIPLINA', W - M, y + 48);
+  x.textAlign = 'left';
+  y += 108;
+  x.fillStyle = '#e10600'; x.fillRect(M, y, CW, 4); y += 48;
+
+  /* программа */
+  x.font = '700 88px Oswald, sans-serif';
+  wrapText(x, (p.full || 'ТРЕНИРОВКА').toUpperCase(), '700 88px Oswald, sans-serif', CW).forEach(L => { x.fillStyle = '#f1efe9'; x.fillText(L, M, y); y += 92; });
+  y += 4;
+  if (p.tags) {
+    x.font = '500 26px "JetBrains Mono", monospace'; x.fillStyle = '#84878d';
+    wrapText(x, p.tags.toUpperCase(), '500 26px "JetBrains Mono", monospace', CW).forEach(L => { x.fillText(L, M, y); y += 36; });
+  }
+  y += 6;
+  x.font = '700 30px "JetBrains Mono", monospace'; x.fillStyle = '#ff3b2a';
+  x.fillText('ЗАКРЫТО ' + done + '/' + rows.length + ' ПОДХОДОВ', M, y); y += 48;
+
+  /* чипы статистики из зального режима */
+  if (lastStats && lastStats.pid === pid) {
+    const chips = [['ВРЕМЯ', fmtDur(lastStats.secs)], ['ОТДЫХ', fmtDur(lastStats.rest)], ['ТОННАЖ', fmtKg(lastStats.ton.total) + ' КГ']];
+    const gap = 18, wch = (CW - gap * 2) / 3; let cx = M;
+    chips.forEach(([k, v]) => {
+      x.fillStyle = '#131315'; x.fillRect(cx, y, wch, 116);
+      x.strokeStyle = '#38383e'; x.lineWidth = 2; x.strokeRect(cx, y, wch, 116);
+      x.textAlign = 'center';
+      x.font = '600 20px "JetBrains Mono", monospace'; x.fillStyle = '#84878d'; x.fillText(k, cx + wch / 2, y + 36);
+      x.font = '700 38px Oswald, sans-serif'; x.fillStyle = '#f1efe9'; x.fillText(v, cx + wch / 2, y + 86);
+      x.textAlign = 'left';
+      cx += wch + gap;
+    });
+    y += 156;
+  } else y += 10;
+
+  /* блоки и подходы */
+  let curG = null, n = 0;
+  for (const r of rows) {
+    if (y > MAXH - 460) break;
+    if (r.dataset.g !== curG) {
+      curG = r.dataset.g; n = 0; y += 20;
+      x.font = '600 40px Oswald, sans-serif'; x.fillStyle = '#f1efe9';
+      wrapText(x, r.dataset.blk.toUpperCase(), '600 40px Oswald, sans-serif', CW).forEach(L => { x.fillText(L, M, y); y += 48; });
+      const eq = editedEq(r);
+      if (eq) { x.font = '600 24px "JetBrains Mono", monospace'; x.fillStyle = '#ff3b2a'; x.fillText('· ' + eq.toUpperCase(), M, y - 12); y += 34; }
+      x.fillStyle = '#212125'; x.fillRect(M, y, CW, 2); y += 28;
+    }
+    n++;
+    const w = $('.in-w', r).value.trim(), rr = $('.in-r', r).value.trim();
+    const tech = r.dataset.tech, note = $('.s-note-in', r).value.trim(), d = $('.ck', r).checked;
+    const join = /^[0-9]/.test(w) ? '×' : ' × ';
+    x.font = '700 28px "JetBrains Mono", monospace';
+    x.fillStyle = d ? '#ff3b2a' : '#54575d';
+    x.fillText(String(n).padStart(2, '0'), M, y);
+    x.fillStyle = d ? '#f1efe9' : '#84878d';
+    const main = w + join + rr;
+    x.fillText(main, M + 64, y);
+    let extra = tech ? ' (' + tech + ')' : '';
+    if (!d) extra += ' — НЕ ВЫПОЛНЕНО';
+    if (extra) {
+      const x0 = M + 64 + x.measureText(main).width + 22;
+      x.font = '500 24px "JetBrains Mono", monospace'; x.fillStyle = '#84878d';
+      wrapText(x, extra, '500 24px "JetBrains Mono", monospace', Math.max(W - M - x0, 320)).forEach((L, i) => { x.fillText(L, i ? M + 64 : x0, y + i * 32); });
+      y += Math.max(36, 32 * wrapText(x, extra, '500 24px "JetBrains Mono", monospace', Math.max(W - M - x0, 320)).length - 4);
+    } else y += 36;
+    if (note) {
+      x.font = '500 22px "JetBrains Mono", monospace'; x.fillStyle = '#6a6d73';
+      wrapText(x, '— ' + note, '500 22px "JetBrains Mono", monospace', CW - 64).forEach(L => { x.fillText(L, M + 64, y); y += 30; });
+      y += 6;
+    }
+  }
+
+  /* тоннаж по блокам */
+  if (ton.blocks.length && y < MAXH - 560) {
+    y += 26;
+    x.fillStyle = '#e10600'; x.fillRect(M, y, CW, 3); y += 42;
+    x.font = '700 26px "JetBrains Mono", monospace'; x.fillStyle = '#ff3b2a';
+    x.fillText('ТОННАЖ ПО БЛОКАМ', M, y); y += 46;
+    x.font = '500 26px "JetBrains Mono", monospace';
+    ton.blocks.forEach(b => {
+      if (y > MAXH - 220) return;
+      x.textAlign = 'left'; x.fillStyle = '#b9bcc2';
+      const nm = wrapText(x, b.name, '500 26px "JetBrains Mono", monospace', CW - 420)[0];
+      x.fillText(nm, M, y);
+      x.textAlign = 'right'; x.fillStyle = '#f1efe9';
+      x.fillText(fmtKg(b.kg) + ' кг · ' + b.n + ' подх.', W - M, y);
+      x.textAlign = 'left';
+      y += 38;
+    });
+  }
+
+  /* подвал */
+  y += 32;
+  x.fillStyle = '#e10600'; x.fillRect(M, y, CW, 3); y += 38;
+  x.font = '600 24px "JetBrains Mono", monospace'; x.fillStyle = '#84878d';
+  x.fillText('— ARES GYM · ЖЕЛЕЗО PANATTA · MADE IN ITALY', M, y); y += 42;
+
+  const H = Math.min(MAXH, Math.ceil(y) + 56);
+  const out = document.createElement('canvas'); out.width = W; out.height = H;
+  out.getContext('2d').drawImage(c, 0, 0, W, H, 0, 0, W, H);
+  return out.toDataURL('image/jpeg', 0.92);
+}
+async function sendPhotoCard() {
+  const pid = reportPid;
+  if (!pid) { toast('Сначала открой отчёт тренировки.', 'ri-error-warning-line'); return; }
+  const btn = $('#repPhoto'); btn.disabled = true;
+  toast('Рисую карточку…', 'ri-image-2-line');
+  try {
+    const b64 = await renderCardJPEG(pid);
+    const payload = (TG_SESSION.mode === 'tg' && TG_SESSION.initData)
+      ? { initData: TG_SESSION.initData, b64: b64 }
+      : { code: localStorage.getItem('ARES_CODE_V1') || '', b64: b64 };
+    const r = await fetch(BOT_API + '/api/photo', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) toast('Фотокарточка улетела в Telegram.', 'ri-telegram-fill');
+    else toast('Не отправилось. Проверь доступ или отправь отчёт текстом.', 'ri-error-warning-line');
+  } catch (e) {
+    toast('Не получилось нарисовать карточку.', 'ri-error-warning-line');
+  }
+  btn.disabled = false;
+}
+
+/* ================= MINI APP: доступ + баны + техработы + блоки ================= */
 const BOT_API = 'https://ares-gym-bot.maks222berg.workers.dev';
 const TG_SESSION = { mode: null, initData: null, name: null, blocks: {} };
 window.ARES_BLOCKS = {};
@@ -2844,7 +3006,6 @@ window.ARES_BLOCKS = {};
     };
     tick(); tmIv = setInterval(tick, 1000);
   }
-  /* авто-перепроверка блокировки раз в 20 сек: блок сняли раньше срока — страница обновится сама */
   function startRecheck(clearFn) {
     if (rcIv) clearInterval(rcIv);
     rcIv = setInterval(async () => {
@@ -2926,7 +3087,6 @@ window.ARES_BLOCKS = {};
     startHeartbeat(initData);
     return true;
   }
-  /* пульс активности: раз в минуту, пока приложение на экране */
   function startHeartbeat(initData) {
     if (!initData) return;
     const BEAT = 60;
@@ -2954,7 +3114,7 @@ window.ARES_BLOCKS = {};
           headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
         if (r.ok) { const d = await r.json().catch(() => ({})); await handleState(d, 'code', null); return; }
       }
-    } catch (e) { return; } /* воркер недоступен — не блокируем */
+    } catch (e) { return; }
     codeScreen(false);
   })();
 
@@ -2982,9 +3142,11 @@ window.ARES_BLOCKS = {};
     }
     btn.disabled = false;
   });
+
+  $('#repPhoto').addEventListener('click', sendPhotoCard);
 })();
 
 window.__aresReady = true;
 </script>
 </body>
-  </html>
+                              </html>
