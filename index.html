@@ -2816,9 +2816,7 @@ function copyText(text, label) {
 if (!LS_OK) setTimeout(() =>
   toast('Хранение закрыто (предпросмотр). Прогресс переживёт перезакрытие только через код «ДАННЫЕ · БЭКАП».', 'ri-database-2-line'), 2600);
 
-/* ================= ФОТОКАРТОЧКА ТРЕНИРОВКИ =================
-   Рисуется на canvas шрифтами и палитрой клуба, уходит на воркер,
-   воркер отправляет фото в Telegram. Хранится в мини-аппе ноль байт. */
+/* ================= ФОТОКАРТОЧКА ТРЕНИРОВКИ ================= */
 function wrapText(x, text, font, maxW) {
   x.font = font;
   const words = String(text).split(/\s+/).filter(Boolean);
@@ -2850,7 +2848,6 @@ async function renderCardJPEG(pid) {
   x.fillStyle = gr; x.fillRect(0, 0, W, MAXH);
 
   let y = 100;
-  /* шапка: ромб + вордмарк + дата */
   x.save(); x.translate(M + 14, y + 12); x.rotate(Math.PI / 4); x.fillStyle = '#e10600'; x.fillRect(-13, -13, 26, 26); x.restore();
   x.textBaseline = 'alphabetic'; x.textAlign = 'left';
   x.font = '700 72px Oswald, sans-serif';
@@ -2865,7 +2862,6 @@ async function renderCardJPEG(pid) {
   y += 108;
   x.fillStyle = '#e10600'; x.fillRect(M, y, CW, 4); y += 48;
 
-  /* программа */
   x.font = '700 88px Oswald, sans-serif';
   wrapText(x, (p.full || 'ТРЕНИРОВКА').toUpperCase(), '700 88px Oswald, sans-serif', CW).forEach(L => { x.fillStyle = '#f1efe9'; x.fillText(L, M, y); y += 92; });
   y += 4;
@@ -2877,7 +2873,6 @@ async function renderCardJPEG(pid) {
   x.font = '700 30px "JetBrains Mono", monospace'; x.fillStyle = '#ff3b2a';
   x.fillText('ЗАКРЫТО ' + done + '/' + rows.length + ' ПОДХОДОВ', M, y); y += 48;
 
-  /* чипы статистики из зального режима */
   if (lastStats && lastStats.pid === pid) {
     const chips = [['ВРЕМЯ', fmtDur(lastStats.secs)], ['ОТДЫХ', fmtDur(lastStats.rest)], ['ТОННАЖ', fmtKg(lastStats.ton.total) + ' КГ']];
     const gap = 18, wch = (CW - gap * 2) / 3; let cx = M;
@@ -2893,7 +2888,6 @@ async function renderCardJPEG(pid) {
     y += 156;
   } else y += 10;
 
-  /* блоки и подходы */
   let curG = null, n = 0;
   for (const r of rows) {
     if (y > MAXH - 460) break;
@@ -2930,7 +2924,6 @@ async function renderCardJPEG(pid) {
     }
   }
 
-  /* тоннаж по блокам */
   if (ton.blocks.length && y < MAXH - 560) {
     y += 26;
     x.fillStyle = '#e10600'; x.fillRect(M, y, CW, 3); y += 42;
@@ -2949,7 +2942,6 @@ async function renderCardJPEG(pid) {
     });
   }
 
-  /* подвал */
   y += 32;
   x.fillStyle = '#e10600'; x.fillRect(M, y, CW, 3); y += 38;
   x.font = '600 24px "JetBrains Mono", monospace'; x.fillStyle = '#84878d';
@@ -2969,12 +2961,13 @@ async function sendPhotoCard() {
     const b64 = await renderCardJPEG(pid);
     const payload = (TG_SESSION.mode === 'tg' && TG_SESSION.initData)
       ? { initData: TG_SESSION.initData, b64: b64 }
-      : { code: localStorage.getItem('ARES_CODE_V1') || '', b64: b64 };
+      : { token: localStorage.getItem('ARES_TOKEN_V1') || '', b64: b64 };
     const r = await fetch(BOT_API + '/api/photo', { method: 'POST',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const j = await r.json().catch(() => ({}));
     if (r.ok && j.ok) toast('Фотокарточка улетела в Telegram.', 'ri-telegram-fill');
     else if (j.reason === 'rate') toast('Слишком часто — подожди минуту и попробуй снова.', 'ri-error-warning-line');
+    else if (j.reason === 'denied' || r.status === 403) toast('Сессия истекла — обнови страницу и введи код заново.', 'ri-error-warning-line');
     else toast('Не отправилось. Проверь доступ или отправь отчёт текстом.', 'ri-error-warning-line');
   } catch (e) {
     toast('Не получилось нарисовать карточку.', 'ri-error-warning-line');
@@ -3016,7 +3009,7 @@ window.ARES_BLOCKS = {};
       if (!gate.classList.contains('open')) { if (rcIv) { clearInterval(rcIv); rcIv = null; } return; }
       try {
         const wa2 = window.Telegram && window.Telegram.WebApp;
-        const pay = (wa2 && wa2.initData) ? { initData: wa2.initData } : { code: localStorage.getItem('ARES_CODE_V1') || '' };
+        const pay = (wa2 && wa2.initData) ? { initData: wa2.initData } : { token: localStorage.getItem('ARES_TOKEN_V1') || '' };
         const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
           headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pay) });
         if (!r.ok) return;
@@ -3059,10 +3052,10 @@ window.ARES_BLOCKS = {};
       <p class="dat-p">ARES GYM — клуб по приглашению. Открой бота и нажми <b>/start</b> — владелец получит твой ID и откроет доступ.</p>
       <a class="btn-fin" href="https://t.me/AresGYM_app" target="_blank" rel="noopener" style="justify-content:center"><i class="ri-telegram-fill"></i> ОТКРЫТЬ БОТА</a>`);
   }
-  function codeScreen(err) {
+  function codeScreen(err, tokenDead) {
     show(`
       <span class="dat-label">КОД ДОСТУПА</span>
-      <p class="dat-p">Сайт открыт вне Telegram — введи код доступа. Один раз, запомнится.</p>
+      <p class="dat-p">${tokenDead ? 'Сессия истекла (токен живёт 30 дней) — введи код заново, он выдаст новый токен.' : 'Сайт открыт вне Telegram — введи код доступа. Один раз, запомнится.'}</p>
       <input class="dat-in" id="gateCode" autocomplete="off" placeholder="код" spellcheck="false">
       ${err ? '<span class="dat-warn" style="color:var(--red-hi)">Неверный код — попробуй ещё.</span>' : ''}
       <div class="dat-actions"><button class="btn-fin" id="gateOk"><i class="ri-check-line"></i> ВОЙТИ</button></div>`);
@@ -3071,15 +3064,15 @@ window.ARES_BLOCKS = {};
       try {
         const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
           headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
-        if (r.ok) {
-          const d = await r.json().catch(() => ({}));
-          localStorage.setItem('ARES_TG_OK_V1', 'code');
-          localStorage.setItem('ARES_CODE_V1', code);
-          if (await handleState(d, 'code', null)) { hide(); toast('Доступ открыт.', 'ri-checkbox-circle-fill'); }
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && d.ok && d.token) {
+          localStorage.setItem('ARES_TOKEN_V1', d.token);
+          localStorage.removeItem('ARES_CODE_V1');
+          localStorage.removeItem('ARES_TG_OK_V1');
+          if (await handleState(d, 'code', null)) { hide(); toast('Доступ открыт — сессия на 30 дней.', 'ri-checkbox-circle-fill'); }
           return;
         }
-        if (r.status === 429) { codeScreen(true); $('#gateCode').value = code; return; }
-        codeScreen(true);
+        codeScreen(true, false);
       } catch (e) { toast('Сервер недоступен — проверь связь.', 'ri-error-warning-line'); }
     });
   }
@@ -3113,14 +3106,19 @@ window.ARES_BLOCKS = {};
         if (r.ok) { const d = await r.json().catch(() => ({})); await handleState(d, 'tg', initData); return; }
         denyScreen(); return;
       }
-      const saved = localStorage.getItem('ARES_TG_OK_V1'), code = localStorage.getItem('ARES_CODE_V1');
-      if (saved && code) {
+      const token = localStorage.getItem('ARES_TOKEN_V1');
+      if (token) {
         const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
-          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
-        if (r.ok) { const d = await r.json().catch(() => ({})); await handleState(d, 'code', null); return; }
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && d.ok) { await handleState(d, 'code', null); return; }
+        /* токен умер/отозван → чистим и просим код */
+        localStorage.removeItem('ARES_TOKEN_V1');
+        codeScreen(false, true);
+        return;
       }
     } catch (e) { return; }
-    codeScreen(false);
+    codeScreen(false, false);
   })();
 
   $('#repSendTG').addEventListener('click', async () => {
@@ -3128,7 +3126,7 @@ window.ARES_BLOCKS = {};
     if (!report) { toast('Отчёт пуст.', 'ri-error-warning-line'); return; }
     const payload = { report };
     if (TG_SESSION.mode === 'tg' && TG_SESSION.initData) payload.initData = TG_SESSION.initData;
-    else { const c = localStorage.getItem('ARES_CODE_V1'); if (c) payload.code = c; }
+    else { const t = localStorage.getItem('ARES_TOKEN_V1'); if (t) payload.token = t; }
     const btn = $('#repSendTG'); btn.disabled = true;
     try {
       const r = await fetch(BOT_API + '/api/report', { method: 'POST',
@@ -3140,6 +3138,7 @@ window.ARES_BLOCKS = {};
           if (j.reason === 'banned') m = 'Ты в бане' + (j.msg ? ': ' + j.msg : '') + '. Отчёт не принят — скопируй его текст.';
           if (j.reason === 'lock') m = 'Техработы' + (j.msg ? ': ' + j.msg : '') + '. Отчёт не принят — скопируй текст, отправишь после открытия.';
           if (j.reason === 'rate') m = 'Слишком часто — подожди полминуты и попробуй снова.';
+          if (j.reason === 'denied') m = 'Сессия истекла — обнови страницу и введи код заново.';
         } catch (e) {}
         toast(m, 'ri-error-warning-line');
       }
@@ -3155,4 +3154,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-  </html>
+</html>
