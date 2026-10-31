@@ -3052,11 +3052,16 @@ window.ARES_BLOCKS = {};
       <p class="dat-p">ARES GYM — клуб по приглашению. Открой бота и нажми <b>/start</b> — владелец получит твой ID и откроет доступ.</p>
       <a class="btn-fin" href="https://t.me/AresGYM_app" target="_blank" rel="noopener" style="justify-content:center"><i class="ri-telegram-fill"></i> ОТКРЫТЬ БОТА</a>`);
   }
-  function codeScreen(err, tokenDead) {
+  /* экран кода: err — неверный код; blocked — лимит попыток; tokenDead — сессия истекла */
+  function codeScreen(err, tokenDead, blocked) {
     show(`
       <span class="dat-label">КОД ДОСТУПА</span>
-      <p class="dat-p">${tokenDead ? 'Сессия истекла (токен живёт 30 дней) — введи код заново, он выдаст новый токен.' : 'Сайт открыт вне Telegram — введи код доступа. Один раз, запомнится.'}</p>
-      <input class="dat-in" id="gateCode" autocomplete="off" placeholder="код" spellcheck="false">
+      <p class="dat-p">${blocked
+        ? 'Слишком много неверных попыток с этого адреса — подожди час или войди через Telegram.'
+        : tokenDead
+        ? 'Сессия истекла (токен живёт 30 дней) — введи код заново, он выдаст новый токен.'
+        : 'Сайт открыт вне Telegram — введи код доступа. Один раз, запомнится.'}</p>
+      <input class="dat-in" id="gateCode" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="код" spellcheck="false">
       ${err ? '<span class="dat-warn" style="color:var(--red-hi)">Неверный код — попробуй ещё.</span>' : ''}
       <div class="dat-actions"><button class="btn-fin" id="gateOk"><i class="ri-check-line"></i> ВОЙТИ</button></div>`);
     $('#gateOk').addEventListener('click', async () => {
@@ -3072,7 +3077,8 @@ window.ARES_BLOCKS = {};
           if (await handleState(d, 'code', null)) { hide(); toast('Доступ открыт — сессия на 30 дней.', 'ri-checkbox-circle-fill'); }
           return;
         }
-        codeScreen(true, false);
+        if (r.status === 429) { codeScreen(false, false, true); return; }
+        codeScreen(true, false, false);
       } catch (e) { toast('Сервер недоступен — проверь связь.', 'ri-error-warning-line'); }
     });
   }
@@ -3114,11 +3120,11 @@ window.ARES_BLOCKS = {};
         if (r.ok && d.ok) { await handleState(d, 'code', null); return; }
         /* токен умер/отозван → чистим и просим код */
         localStorage.removeItem('ARES_TOKEN_V1');
-        codeScreen(false, true);
+        codeScreen(false, true, false);
         return;
       }
     } catch (e) { return; }
-    codeScreen(false, false);
+    codeScreen(false, false, false);
   })();
 
   $('#repSendTG').addEventListener('click', async () => {
@@ -3154,4 +3160,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-</html>
+                                           </html>
