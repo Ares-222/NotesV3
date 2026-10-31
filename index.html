@@ -1333,7 +1333,7 @@ footer{background:var(--bg2)}
 const $  = (s, c = document) => c.querySelector(s);
 const $$ = (s, c = document) => [...c.querySelectorAll(s)];
 const PRM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const escA = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const escA = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
 /* каскад хранилищ: localStorage → sessionStorage → память */
@@ -1378,10 +1378,13 @@ if (HAS_IO) {
 addEventListener('error', () => document.documentElement.classList.add('nojs-ok'), { once: true });
 addEventListener('unhandledrejection', () => document.documentElement.classList.add('nojs-ok'), { once: true });
 
+/* toast: безопасная вставка через textContent (XSS-гигиена) */
 function toast(msg, icon = 'ri-information-line') {
   const t = document.createElement('div');
   t.className = 'toast';
-  t.innerHTML = `<i class="${icon}"></i><span>${msg}</span>`;
+  const ic = document.createElement('i'); ic.className = icon;
+  const sp = document.createElement('span'); sp.textContent = msg;
+  t.appendChild(ic); t.appendChild(sp);
   $('#toasts').appendChild(t);
   requestAnimationFrame(() => t.classList.add('show'));
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3600);
@@ -2971,6 +2974,7 @@ async function sendPhotoCard() {
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const j = await r.json().catch(() => ({}));
     if (r.ok && j.ok) toast('Фотокарточка улетела в Telegram.', 'ri-telegram-fill');
+    else if (j.reason === 'rate') toast('Слишком часто — подожди минуту и попробуй снова.', 'ri-error-warning-line');
     else toast('Не отправилось. Проверь доступ или отправь отчёт текстом.', 'ri-error-warning-line');
   } catch (e) {
     toast('Не получилось нарисовать карточку.', 'ri-error-warning-line');
@@ -3074,6 +3078,7 @@ window.ARES_BLOCKS = {};
           if (await handleState(d, 'code', null)) { hide(); toast('Доступ открыт.', 'ri-checkbox-circle-fill'); }
           return;
         }
+        if (r.status === 429) { codeScreen(true); $('#gateCode').value = code; return; }
         codeScreen(true);
       } catch (e) { toast('Сервер недоступен — проверь связь.', 'ri-error-warning-line'); }
     });
@@ -3134,6 +3139,7 @@ window.ARES_BLOCKS = {};
         try { const j = await r.json();
           if (j.reason === 'banned') m = 'Ты в бане' + (j.msg ? ': ' + j.msg : '') + '. Отчёт не принят — скопируй его текст.';
           if (j.reason === 'lock') m = 'Техработы' + (j.msg ? ': ' + j.msg : '') + '. Отчёт не принят — скопируй текст, отправишь после открытия.';
+          if (j.reason === 'rate') m = 'Слишком часто — подожди полминуты и попробуй снова.';
         } catch (e) {}
         toast(m, 'ri-error-warning-line');
       }
@@ -3149,4 +3155,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-                              </html>
+  </html>
