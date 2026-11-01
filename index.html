@@ -3039,8 +3039,15 @@ window.ARES_BLOCKS = {};
     const initData = wa ? (wa.initData || '') : '';
     try {
       if (initData) {
+        /* v6.1: шлём устройство (userAgent + userAgentData) воркеру для /activity */
+        let uad = null;
+        try {
+          if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues)
+            uad = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
+        } catch (e) { uad = null; }
         const r = await fetch(BOT_API + '/api/auth', { method: 'POST',
-          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData }) });
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: initData, userAgent: navigator.userAgent || '', userAgentData: uad }) });
         if (r.ok) { const d = await r.json().catch(() => ({})); await handleState(d, 'tg', initData); return; }
         denyScreen(); return;
       }
