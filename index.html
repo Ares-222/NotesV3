@@ -119,18 +119,6 @@ body.menu-open .mmenu{transform:none}
 .def.hyb h3 em{font-style:normal;color:var(--red-hi)}
 .cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .hint{font-family:var(--fm);font-size:10px;letter-spacing:.14em;color:var(--dim);margin-top:12px}
-.bench-wrap{position:relative;border:1px solid var(--line2);margin:clamp(18px,3vh,36px) 0;min-height:400px;display:flex;flex-direction:column;background:radial-gradient(62% 58% at 50% 42%,rgba(225,6,0,.11),transparent 72%)}
-.bench-wrap svg{width:100%;height:auto;flex:1;display:block}
-.tick{position:absolute;width:14px;height:14px;border:2px solid var(--line2)}
-.tick.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}
-.tick.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
-.tick.bl{bottom:37px;left:-1px;border-right:0;border-top:0}
-.tick.br{bottom:37px;right:-1px;border-left:0;border-top:0}
-.vert{position:absolute;top:20px;right:16px;writing-mode:vertical-rl;font-family:var(--fh);font-weight:600;font-size:11px;letter-spacing:.34em;color:rgba(241,239,233,.4);text-transform:uppercase;display:flex;align-items:center;gap:10px}
-.fig-cap{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;background:rgba(8,8,9,.8);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-top:1px solid var(--line);font-family:var(--fm);font-size:9.5px;letter-spacing:.12em;color:var(--silver);text-transform:uppercase}
-.fig-cap b{color:var(--red-hi);font-weight:400}
-#barGroup{animation:reps 3.4s cubic-bezier(.45,0,.55,1) infinite}
-@keyframes reps{0%,100%{transform:translateY(0)}50%{transform:translateY(13px)}}
 .hero-strip{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
 .hstrip{padding:14px 18px 16px;border-left:1px solid var(--line)}
 .hstrip:first-child{border-left:0}
@@ -295,9 +283,6 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .duo::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(165deg,rgba(225,6,0,.32),rgba(10,10,11,.6) 75%);pointer-events:none}
 .duo-cap{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(8,8,9,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-top:1px solid var(--line);font-family:var(--fm);font-size:9px;letter-spacing:.14em;color:var(--silver);text-transform:uppercase}
 .duo-cap b{color:var(--red-hi);font-weight:400}
-.photo-hint{font-family:var(--fm);font-size:9.5px;letter-spacing:.12em;color:var(--dim);margin-top:14px;display:block;line-height:2;text-transform:uppercase}
-.photo-hint i{color:var(--red-hi);margin-right:8px;transform:translateY(1px)}
-.photo-hint b{color:var(--silver);font-weight:500}
 
 .sup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .sup-card{border:1px solid var(--line2);background:var(--panel);padding:20px 22px 14px}
@@ -509,7 +494,6 @@ footer{background:var(--bg2)}
 
 @media(max-width:1020px){
   .hero-grid{grid-template-columns:1fr}
-  .bench-wrap{min-height:0;margin-top:0}
   .contact-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:980px){
@@ -545,7 +529,7 @@ footer{background:var(--bg2)}
   .pc-grid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){
-  .ticker-track,.bm-track,#barGroup{animation:none}
+  .ticker-track,.bm-track{animation:none}
   html{scroll-behavior:auto}
   .js [data-reveal],.js .hr{transition:none;animation:none;opacity:1;transform:none}
   #splash{display:none}
@@ -687,58 +671,6 @@ footer{background:var(--bg2)}
             <p class="hint">ЖИМОВАЯ · ТЯГОВАЯ · НОГИ · СВОЙ ПЛАН — ВЫБЕРИ И РАБОТАЙ</p>
           </div>
         </div>
-
-        <figure class="bench-wrap hr" style="--hd:.3s">
-          <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
-          <span class="vert"><span class="tri"></span> Made in Italy</span>
-          <svg viewBox="0 0 660 520" role="img" aria-label="Жимовая скамья со штангой">
-            <polygon points="335,-20 130,472 560,472" fill="url(#gSpot)"/>
-            <line x1="36" y1="472" x2="624" y2="472" stroke="#2a2a2f" stroke-width="2"/>
-            <g stroke="#1d1d21" stroke-width="2">
-              <line x1="80" y1="478" x2="68" y2="490"/><line x1="160" y1="478" x2="148" y2="490"/>
-              <line x1="240" y1="478" x2="228" y2="490"/><line x1="320" y1="478" x2="308" y2="490"/>
-              <line x1="400" y1="478" x2="388" y2="490"/><line x1="480" y1="478" x2="468" y2="490"/>
-              <line x1="560" y1="478" x2="548" y2="490"/>
-            </g>
-            <g opacity=".45">
-              <rect x="612" y="150" width="13" height="320" fill="#17171a"/>
-              <rect x="600" y="462" width="38" height="8" fill="#17171a"/>
-            </g>
-            <rect x="150" y="460" width="74" height="12" fill="#1c1c20" stroke="#33333a"/>
-            <rect x="176" y="128" width="22" height="336" fill="url(#gPost)" stroke="#33333a"/>
-            <rect x="172" y="120" width="30" height="10" fill="#1c1c20" stroke="#33333a"/>
-            <rect x="176" y="140" width="22" height="5" fill="#e10600" opacity=".85"/>
-            <circle cx="187" cy="442" r="2.5" fill="#3a3a41"/><circle cx="187" cy="428" r="2.5" fill="#3a3a41"/>
-            <g id="barGroup">
-              <circle cx="132" cy="236" r="26" fill="#141417" stroke="#2a2a2f"/>
-              <circle cx="532" cy="236" r="48" fill="#7e060c"/>
-              <circle cx="532" cy="236" r="32" fill="#64040a"/>
-              <circle cx="556" cy="236" r="48" fill="url(#gPlate)" stroke="#4c0308" stroke-width="2"/>
-              <circle cx="556" cy="236" r="30" fill="#9c0a13" opacity=".9"/>
-              <circle cx="556" cy="236" r="9" fill="url(#gBar)" stroke="#3d4147"/>
-              <circle cx="584" cy="236" r="17" fill="url(#gBar)" stroke="#4a4e55"/>
-              <rect x="498" y="226" width="9" height="20" rx="2" fill="#2c2f34"/>
-              <rect x="126" y="232" width="470" height="8" rx="4" fill="url(#gBar)"/>
-              <rect x="246" y="232" width="26" height="8" fill="#43474d" opacity=".9"/>
-              <rect x="430" y="232" width="26" height="8" fill="#43474d" opacity=".9"/>
-            </g>
-            <path d="M198 240 h34 v9 h-25 v16 h-9 z" fill="#e10600" stroke="#6b0305"/>
-            <path d="M266 354 L250 464 L276 464 L286 354 Z" fill="#1a1a1e" stroke="#33333a"/>
-            <path d="M436 354 L420 464 L446 464 L456 354 Z" fill="#1a1a1e" stroke="#33333a"/>
-            <rect x="252" y="434" width="196" height="5" fill="#161619"/>
-            <rect x="226" y="328" width="262" height="26" rx="9" fill="url(#gPad)" stroke="#55060c" stroke-width="1.5"/>
-            <rect x="230" y="330" width="254" height="6" rx="3" fill="#ff5a63" opacity=".16"/>
-            <line x1="242" y1="341" x2="472" y2="341" stroke="#f2b8bb" stroke-width="1.2" stroke-dasharray="9 7" opacity=".4"/>
-            <circle cx="392" cy="300" r="2" fill="#cfd2d8" opacity=".3"/>
-            <circle cx="366" cy="284" r="1.5" fill="#cfd2d8" opacity=".25"/>
-            <circle cx="420" cy="312" r="1.2" fill="#cfd2d8" opacity=".2"/>
-            <text x="330" y="508" text-anchor="middle" font-family="monospace" font-size="10" letter-spacing="3" fill="#63666c">ARES GYM — POWER STATION · PANATTA EDITION</text>
-          </svg>
-          <figcaption class="fig-cap">
-            <span>СИЛОВАЯ РАМА · <b>ЖИМОВАЯ СКАМЬЯ</b></span>
-            <span>РАБОЧИЙ ВЕС — <b>100 КГ × 3</b></span>
-          </figcaption>
-        </figure>
       </div>
 
       <div class="hero-strip" data-reveal>
@@ -905,7 +837,6 @@ footer{background:var(--bg2)}
         </figure>
 
       </div>
-      <p class="photo-hint"><i class="ri-image-2-line"></i> РЕАЛЬНЫЕ ФОТО ВСТАЮТ САМИ: папка <b>photo/</b> рядом со страницей → <b>bench.jpg · tbar.jpg · squat.jpg</b></p>
     </div>
   </section>
 
@@ -3160,4 +3091,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-                                           </html>
+  </html>
