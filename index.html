@@ -3024,14 +3024,16 @@ window.ARES_BLOCKS = {};
     return true;
   }
   function startHeartbeat(initData) {
-    if (!initData) return;
-    const BEAT = 60;
+    const BEAT = 300; /* 5 мин: ×5 экономия запросов и записей KV; при коротком заходе до 5 мин не досчитается */
     setInterval(() => {
       if (document.visibilityState !== 'visible') return;
       try {
+        const pay = { seconds: BEAT };
+        if (initData) pay.initData = initData;
+        else { const t = localStorage.getItem('ARES_TOKEN_V1'); if (!t) return; pay.token = t; }
         fetch(BOT_API + '/api/beat', { method: 'POST', keepalive: true,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: initData, seconds: BEAT }) }).catch(function(){});
+          body: JSON.stringify(pay) }).catch(function(){});
       } catch (e) {}
     }, BEAT * 1000);
   }
@@ -3099,4 +3101,4 @@ window.ARES_BLOCKS = {};
 window.__aresReady = true;
 </script>
 </body>
-  </html>
+</html>
