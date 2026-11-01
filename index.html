@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>ARES GYM — Программы тренировок</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://telegram.org 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self' https://ares-gym-bot.maks222berg.workers.dev; object-src 'none'; base-uri 'self'">
 <link rel="manifest" href="manifest.json">
 <!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -1728,7 +1729,7 @@ function setRow(s, i, pid, bi, vk, blk, rest) {
     <span class="s-n">${String(i + 1).padStart(2, '0')}</span>
     <input type="checkbox" class="ck" aria-label="Подход выполнен">
     <span class="s-wr"><input class="in-w" value="${escA(s.w)}" inputmode="decimal" aria-label="Вес, кг" autocomplete="off"><i>×</i><input class="in-r" value="${escA(s.r)}" inputmode="numeric" aria-label="Повторы" autocomplete="off"></span>
-    <span class="s-t">${s.t || ''}${s.note ? `<em class="s-hint">${escA(s.note)}</em>` : ''}</span>
+    <span class="s-t">${escA(s.t || '')}${s.note ? `<em class="s-hint">${escA(s.note)}</em>` : ''}</span>
     <input class="s-note-in" placeholder="заметка — как прошёл подход" autocomplete="off">
   </div>`;
 }
@@ -1739,21 +1740,21 @@ function blockHTML(b, i, pid) {
   const eqHTML = eq ? `<span class="b-eq-wrap ${/panatta/i.test(eq) ? 'panatta' : ''}"><input class="b-eq-in" data-key="${pid}:b${i}:eq" data-def="${escA(eq)}" value="${escA(eq)}" aria-label="Тренажёр — можно изменить" autocomplete="off" spellcheck="false"></span>` : '';
   const atlas = b.atlas ? atlasHTML(b.atlas) : '';
   if (b.variants) {
-    const rowsA = b.variants.a.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'a', `${b.name} — вариант А: ${b.variants.a.name}`, rest)).join('');
-    const rowsB = b.variants.b.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'b', `${b.name} — вариант Б: ${b.variants.b.name}`, rest)).join('');
+    const rowsA = b.variants.a.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'a', `${escA(b.name)} — вариант А: ${escA(b.variants.a.name)}`, rest)).join('');
+    const rowsB = b.variants.b.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, 'b', `${escA(b.name)} — вариант Б: ${escA(b.variants.b.name)}`, rest)).join('');
     return `<section class="block">
-      <header class="b-head"><span class="b-idx mono">${num}</span><h4>${b.name}</h4>${eqHTML}<span class="b-count">А / Б</span></header>
-      ${b.note ? `<p class="b-note">${b.note}</p>` : ''}
+      <header class="b-head"><span class="b-idx mono">${num}</span><h4>${escA(b.name)}</h4>${eqHTML}<span class="b-count">А / Б</span></header>
+      ${b.note ? `<p class="b-note">${escA(b.note)}</p>` : ''}
       ${atlas}
       <div class="alt-grid">
-        <div class="alt"><h5>ВАРИАНТ А — ${b.variants.a.name}</h5>${rowsA}</div>
-        <div class="alt"><h5>ВАРИАНТ Б — ${b.variants.b.name}</h5>${rowsB}</div>
+        <div class="alt"><h5>ВАРИАНТ А — ${escA(b.variants.a.name)}</h5>${rowsA}</div>
+        <div class="alt"><h5>ВАРИАНТ Б — ${escA(b.variants.b.name)}</h5>${rowsB}</div>
       </div>
     </section>`;
   }
   return `<section class="block">
-    <header class="b-head"><span class="b-idx mono">${num}</span><h4>${b.name}</h4>${eqHTML}<span class="b-count">${b.sets.length} ПОДХ. · ОТДЫХ ${rest}</span></header>
-    ${b.note ? `<p class="b-note">${b.note}</p>` : ''}
+    <header class="b-head"><span class="b-idx mono">${num}</span><h4>${escA(b.name)}</h4>${eqHTML}<span class="b-count">${b.sets.length} ПОДХ. · ОТДЫХ ${rest}</span></header>
+    ${b.note ? `<p class="b-note">${escA(b.note)}</p>` : ''}
     ${atlas}
     ${b.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, null, b.name, rest)).join('')}
   </section>`;
