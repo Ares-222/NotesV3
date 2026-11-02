@@ -59,7 +59,15 @@ function toast(msg, icon = 'ri-information-line') {
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3600);
 }
 setTimeout(() => { const sp = $('#splash'); if (sp) { sp.classList.add('gone'); setTimeout(() => sp.remove(), 100); } }, 1900);
-
+/* ошибки картинок (capture — error не всплывает): фолбэк атласа Atlas/ → atlas/,
+   удаление пустых карточек атласа и фото зала. Заменяет инлайн-onerror. */
+document.addEventListener('error', e => {
+  const el = e.target;
+  if (!el || el.tagName !== 'IMG') return;
+  if (el.dataset.fb) { el.src = el.dataset.fb; el.removeAttribute('data-fb'); return; }
+  if (el.dataset.atlasfig != null) { const f = el.closest('figure'); if (f) f.remove(); return; }
+  if (el.dataset.rem != null) el.remove();
+}, true);
 /* ================= ПРОГРАММЫ =================
    Контент (программы, проценты 1ПМ, атлас) больше НЕ зашит в html:
    он приходит с воркера (/api/programs) только после проверки доступа
@@ -142,7 +150,7 @@ function getProg(pid) {
    (на GitHub Pages путь регистрозависим!). Нет файла — карточка
    просто не показывается, блок не ломается. */
 function atlasFig(slug, n, cap, alt) {
-  return `<figure><img src="Atlas/${slug}-${n}.jpg" loading="lazy" alt="${escA(alt)}" data-fb="atlas/${slug}-${n}.jpg" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.removeAttribute('data-fb')}else{this.closest('figure').remove()}"><figcaption>${cap}</figcaption></figure>`;
+  return `<figure><img src="Atlas/${slug}-${n}.jpg" loading="lazy" alt="${escA(alt)}" data-fb="atlas/${slug}-${n}.jpg" data-atlasfig="1"><figcaption>${cap}</figcaption></figure>`;
 }
 function atlasHTML(slug) {
   const a = ATLAS[slug]; if (!a) return '';
