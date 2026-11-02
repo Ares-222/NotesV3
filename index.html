@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0b">
+<meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>ARES GYM — Программы тренировок</title>
@@ -154,6 +155,12 @@ section{padding:clamp(56px,8vw,92px) 0;position:relative}
 .pcard:hover .pc-arrow,.pcard.active .pc-arrow{color:#0a0a0b;transform:rotate(45deg)}
 .pc-hint{font-family:var(--fm);font-size:10px;letter-spacing:.16em;color:var(--dim);margin-top:14px;display:flex;align-items:center;gap:10px;text-transform:uppercase}
 .pc-badge{position:absolute;top:10px;right:12px;z-index:2;background:var(--red);color:#fff;font:700 8.5px var(--fm);letter-spacing:.14em;padding:5px 8px;text-transform:uppercase;animation:pulse 1.6s infinite;border:1px solid rgba(255,255,255,.25)}
+/* скелетон загрузки программ */
+.prog-skel{border:1px dashed var(--line2);background:var(--bg2);padding:24px 22px;display:flex;gap:14px;align-items:center;margin-top:22px;color:var(--dim);font:700 10.5px var(--fm);letter-spacing:.16em;text-transform:uppercase}
+.prog-skel i{color:var(--red-hi);font-size:18px;animation:pulse 1.2s infinite}
+.prog-skel .sk-bar{flex:1;max-width:220px;height:2px;background:var(--line);overflow:hidden;position:relative}
+.prog-skel .sk-bar::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:var(--red);animation:skLoad 1.1s ease-in-out infinite}
+@keyframes skLoad{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
 
 .panel{position:relative;overflow:hidden;max-height:0;transition:max-height .55s cubic-bezier(.25,.8,.25,1)}
 .panel-box{border:1px solid var(--line2);border-top:3px solid var(--red);background:var(--panel);margin-top:22px;scroll-margin-top:100px}
@@ -696,8 +703,8 @@ footer{background:var(--bg2)}
           <span class="pc-main">
             <span class="pc-k">Тренировка</span>
             <h3 class="pc-name">Жимовая</h3>
-            <span class="pc-tags">Грудь · Плечи · Трицепс · Пресс</span>
-            <span class="pc-meta">10 подходов жима · расчёт от 1ПМ</span>
+            <span class="pc-tags"></span>
+            <span class="pc-meta"></span>
           </span>
           <span class="pc-arrow"><i class="ri-arrow-right-line"></i></span>
         </button>
@@ -706,8 +713,8 @@ footer{background:var(--bg2)}
           <span class="pc-main">
             <span class="pc-k">Тренировка</span>
             <h3 class="pc-name">Тяговая</h3>
-            <span class="pc-tags">Спина · Бицепс · Пресс</span>
-            <span class="pc-meta">6 блоков · расчёт от 1ПМ</span>
+            <span class="pc-tags"></span>
+            <span class="pc-meta"></span>
           </span>
           <span class="pc-arrow"><i class="ri-arrow-right-line"></i></span>
         </button>
@@ -716,8 +723,8 @@ footer{background:var(--bg2)}
           <span class="pc-main">
             <span class="pc-k">Тренировка</span>
             <h3 class="pc-name">Ноги</h3>
-            <span class="pc-tags">Силовой уклон · варианты базы · Бицепс (гантели)</span>
-            <span class="pc-meta">10 блоков · зона рекордов</span>
+            <span class="pc-tags"></span>
+            <span class="pc-meta"></span>
           </span>
           <span class="pc-arrow"><i class="ri-arrow-right-line"></i></span>
         </button>
@@ -1323,179 +1330,14 @@ function toast(msg, icon = 'ri-information-line') {
 }
 setTimeout(() => { const sp = $('#splash'); if (sp) { sp.classList.add('gone'); setTimeout(() => sp.remove(), 100); } }, 1900);
 
-/* ================= ПРОГРАММЫ ================= */
-const PROGRAMS = [
-{
-  id:'push', num:'01', full:'Жимовая тренировка',
-  tags:'Грудь · Плечи · Трицепс · Пресс', meta:'7 БЛОКОВ · 10 ПОДХОДОВ ЖИМА',
-  blocks:[
-    { name:'Жим лёжа', rest:180, eq:'СВОБОДНЫЙ ВЕС · СИЛОВАЯ РАМА',
-      note:'Разминочная лестница до рабочего веса. Взрыв — в каждом повторе, где это указано.',
-      sets:[
-        {w:'Гриф', r:'10', t:'Подконтрольное опускание + взрывной подъём'},
-        {w:'65',   r:'5',  t:'Взрывной подъём'},
-        {w:'90',   r:'2',  t:'Взрывной подъём — медленнее из-за веса'},
-        {w:'115',  r:'1',  t:'Пауза 2 секунды + взрывной подъём'},
-        {w:'100',  r:'3',  t:'Пауза 1 секунда + взрывной подъём'},
-        {w:'100',  r:'3',  t:'Пауза 1 секунда + взрывной подъём'},
-        {w:'100',  r:'3',  t:'Обычный темп'},
-        {w:'100',  r:'3',  t:'Обычный темп · по состоянию'},
-        {w:'90',   r:'4',  t:'Узкий хват · пауза 1 секунда · взрывной подъём'},
-        {w:'85',   r:'5',  t:'Узкий хват · Ларсон · пауза 1 секунда · взрывной подъём'}
-      ]},
-    { name:'Сведение лёжа', atlas:'flight-panatta', eq:'PANATTA · СВЕДЕНИЕ',
-      sets:[
-        {w:'15', r:'12', t:'Подконтрольно · в конце дожимай грудь бицепсом'},
-        {w:'20', r:'10', t:'Чуть негатив · максимальный контроль и прожим',
-          note:'Если жмёшь силой локтей — сбавь вес: здесь нужна идеальная техника'},
-        {w:'15', r:'8',  t:'Негатив'}
-      ]},
-    { name:'Жим от плеч', atlas:'ohp', rest:120, eq:'СВОБОДНЫЙ ВЕС',
-      sets:[
-        {w:'25', r:'8', t:'Взрывной подъём · без касания'},
-        {w:'35', r:'6', t:'Также'},
-        {w:'45', r:'5', t:'Также · последний повтор — негатив 6 секунд'}
-      ]},
-    { name:'Отведение плеча', atlas:'latraise-panatta', eq:'PANATTA · ОТВЕДЕНИЕ',
-      sets:[
-        {w:'40', r:'12', t:'Пауза в верхней точке'},
-        {w:'45', r:'10', t:'Также'},
-        {w:'50', r:'8',  t:'Также'},
-        {w:'35', r:'8',  t:'Взрыв + негатив'}
-      ]},
-    { name:'Французский жим', atlas:'french-panatta', eq:'PANATTA · ТРЕНАЖЁР',
-      sets:[
-        {w:'40', r:'8', t:'Максимальное растяжение + пауза внизу · взрывной подъём'},
-        {w:'60', r:'6', t:'Взрывной подъём · подконтрольно вниз'},
-        {w:'40', r:'8', t:'Также'}
-      ]},
-    { name:'Трицепс', atlas:'tricep-panatta', eq:'PANATTA · ТРИЦЕПС',
-      sets:[
-        {w:'15', r:'12', t:'Максимально чисто · со взрывным подъёмом'},
-        {w:'20', r:'10', t:'Также'}
-      ]},
-    { name:'Пресс', atlas:'abs-panatta', eq:'PANATTA · ПРЕСС',
-      sets:[
-        {w:'35', r:'15', t:'Пауза в верхней точке'},
-        {w:'50', r:'12', t:'Пауза в верхней точке'},
-        {w:'35', r:'10', t:'Взрыв + негатив'}
-      ]}
-  ]
-},
-{
-  id:'pull', num:'02', full:'Тяговая тренировка',
-  tags:'Спина · Бицепс · Пресс', meta:'6 БЛОКОВ · БИЦЕПС — ВАРИАНТ А/Б',
-  blocks:[
-    { name:'Тяга Т-грифа', atlas:'tbar', rest:180, eq:'PANATTA · T-BAR',
-      sets:[
-        {w:'20', r:'12',   t:'Максимальная техника: паузы + растяжение'},
-        {w:'40', r:'6',    t:'Максимальная техника: паузы + растяжение'},
-        {w:'60', r:'3',    t:'Обычная скорость · взрывной подъём'},
-        {w:'80', r:'4–6',  t:'Взрыв · до отказа'},
-        {w:'40', r:'8',    t:'Взрыв + негатив · до отказа'}
-      ]},
-    { name:'Х-тяга', atlas:'xrow', rest:120, eq:'PANATTA · X-ROW',
-      sets:[
-        {w:'20', r:'6', t:'Двумя руками · взрыв + пауза'},
-        {w:'40', r:'8', t:'По одной · взрыв + пауза'},
-        {w:'60', r:'6', t:'По одной руке'},
-        {w:'30', r:'8', t:'Взрыв + негатив'}
-      ]},
-    { name:'Горизонтальная тяга с подвижными ручками', atlas:'hrow', eq:'PANATTA',
-      sets:[
-        {w:'30', r:'6', t:'Взрыв + пауза'},
-        {w:'45', r:'4', t:'Взрыв'}
-      ]},
-    { name:'Пуловер', atlas:'pullover', eq:'TECHNOGYM',
-      sets:[ {w:'40', r:'15'}, {w:'50', r:'12'}, {w:'70', r:'8–10'} ]},
-    { name:'Бицепс', atlas:'bicep-panatta', eq:'PANATTA · БИЦЕПС',
-      sets:[
-        {w:'30', r:'12', t:'Негатив · технично, максимально подконтрольно'},
-        {w:'40', r:'10', t:'Негатив · технично, подконтрольно'},
-        {w:'60', r:'8',  t:'Взрыв + пауза'}
-      ]},
-    { name:'Бицепс — вариант на выбор', eq:'ЛИБО А · ЛИБО Б',
-      note:'Чередуй варианты от тренировки к тренировке.',
-      variants:{
-        a:{ name:'Смена положения', sets:[
-          {w:'20', r:'12', t:'Взрыв + пауза + негатив'},
-          {w:'30', r:'8',  t:'Взрыв + пауза'},
-          {w:'20', r:'8',  t:'Взрыв'}
-        ]},
-        b:{ name:'Скотт · узко · все взрывные', sets:[
-          {w:'35', r:'10', t:'Пауза в верхней точке + негатив'},
-          {w:'45', r:'6',  t:'Пауза + негатив'},
-          {w:'50', r:'4'}
-        ]}
-      }},
-    { name:'Пресс', atlas:'abs-panatta', eq:'PANATTA · ПРЕСС',
-      note:'Пауза при сокращении — всегда.',
-      sets:[
-        {w:'40', r:'15'}, {w:'50', r:'12'},
-        {w:'20', r:'15', t:'Взрыв + негатив'}
-      ]}
-  ]
-},
-{
-  id:'legs', num:'03', full:'Тренировка ног',
-  tags:'Силовой уклон · варианты базы · Бицепс (гантели) · Пресс', meta:'10 БЛОКОВ · ВАРИАНТЫ В ПЕРВОМ БЛОКЕ',
-  blocks:[
-    { name:'Разгибания ног', atlas:'legext', eq:'ТРЕНАЖЁР',
-      sets:[
-        {w:'50',  r:'12', t:'Подконтрольно · пауза вверху'},
-        {w:'70',  r:'10', t:'Также'},
-        {w:'90',  r:'6',  t:'Также'},
-        {w:'100', r:'4',  t:'Также'}
-      ]},
-    { name:'База ног — вариант на выбор', atlas:'kolodec', eq:'ЛИБО ЖИМ · ЛИБО КОЛОДЕЦ',
-      note:'Чередуй варианты от тренировки к тренировке.',
-      variants:{
-        a:{ name:'Жим ногами', sets:[
-          {w:'195',     r:'10'},
-          {w:'275',     r:'8'},
-          {w:'385–400', r:'5', t:'По ощущениям — можно пробовать прибавку'}
-        ]},
-        b:{ name:'Тренажёр «Колодец» — присед с поясом', sets:[
-          {w:'Разогревочный', r:'12'},
-          {w:'Рабочий 1',     r:'8'},
-          {w:'Рабочий 2',     r:'6'},
-          {w:'Тяжёлый',       r:'4'}
-        ]}
-      }},
-    { name:'Сгибания ног', atlas:'legcurl', eq:'ТРЕНАЖЁР',
-      sets:[
-        {w:'40', r:'12', t:'Пауза'},
-        {w:'50', r:'8',  t:'Пауза'},
-        {w:'60', r:'8',  t:'Пауза'}
-      ]},
-    { name:'Икры', eq:'ЖИМОВАЯ ПЛАТФОРМА',
-      sets:[ {w:'195', r:'12'}, {w:'195', r:'15'}, {w:'195', r:'15'} ]},
-    { name:'Экстензия', eq:'СВОЙ ВЕС + БЛИН · если нет проблем со спиной',
-      sets:[
-        {w:'Свой вес', r:'15'},
-        {w:'Блин 20',  r:'12'},
-        {w:'Блин 30',  r:'8'}
-      ]},
-    { name:'Подъём на бицепс на наклонной скамье 45°', atlas:'incline', eq:'БИЦЕПС · ГАНТЕЛИ',
-      sets:[ {w:'14', r:'10'}, {w:'16', r:'8'}, {w:'20–24', r:'6'} ]},
-    { name:'Молотки стоя', eq:'БИЦЕПС · ГАНТЕЛИ',
-      sets:[ {w:'16', r:'10'}, {w:'24', r:'6'} ]},
-    { name:'Косые молотки — ладонь вниз', eq:'БИЦЕПС · ГАНТЕЛИ',
-      sets:[
-        {w:'12', r:'12', t:'Взрывной подъём · подконтрольно'},
-        {w:'16', r:'10', t:'Чисто, подконтрольно'},
-        {w:'12', r:'8',  t:'Чисто, подконтрольно'}
-      ]},
-    { name:'Концентрированные сгибания сидя', eq:'БИЦЕПС · ГАНТЕЛИ',
-      sets:[ {w:'16', r:'10'}, {w:'14', r:'8'}, {w:'12', r:'6'} ]},
-    { name:'Пресс', atlas:'abs-panatta', eq:'PANATTA · ПРЕСС',
-      sets:[
-        {w:'30', r:'15', t:'Пауза в верхней точке'},
-        {w:'50', r:'12'},
-        {w:'30', r:'10', t:'Взрыв + негатив'}
-      ]}
-  ]
-}];
+/* ================= ПРОГРАММЫ =================
+   Контент (программы, проценты 1ПМ, атлас) больше НЕ зашит в html:
+   он приходит с воркера (/api/programs) только после проверки доступа
+   и кэшируется в localStorage. До загрузки — скелетон. */
+let PROGRAMS = [];
+let ATLAS = {};
+let ATLAS_TIP = '';
+let CALC_SPECS = {};
 
 /* ================= ДАННЫЕ ================= */
 const TKEY = 'ARES_GYM_TRACKER_V1';
@@ -1513,6 +1355,8 @@ let lastStats = null;
     if (o && typeof o === 'object') {
       if ('s' in o) { store = o.s || {}; customPlan = o.c || null; }
       else store = o;
+      /* прозрачность: сообщаем, что данные из ссылки применены (хранилище было пустым) */
+      setTimeout(() => toast('Прогресс из ссылки применён — проверь цифры.', 'ri-database-2-line'), 2100);
     }
   } catch (e) {}
 })();
@@ -1562,88 +1406,11 @@ function getProg(pid) {
 }
 
 /* ================= АТЛАС УПРАЖНЕНИЙ =================
-   Фото-карточки подхватываются сами: <slug>-1.jpg — выполнение,
-   <slug>-2.jpg — карта мышц. Пробуются оба варианта папки — «Atlas/»
-   и «atlas/» (на GitHub Pages путь регистрозависим!). Нет файла —
-   карточка просто не показывается, блок не ломается. */
-const ATLAS = {
-  'flight-panatta': {
-    name:'Сведение Panatta лёжа',
-    main:'Грудные', second:'Передняя дельта',
-    note:'Максимальная изоляция — огромный вес тут не нужен, чтобы прочувствовать мышцу. Учитывай: ты идёшь на него после жима, грудь итак уже работала. Главное — чистейшая техника. Вектор движения схож с жимом, и в отличие от сведения сидя, здесь никак не поможешь себе дельтами.'
-  },
-  'ohp': {
-    name:'Жим от плеч',
-    main:'Передняя дельта, средняя дельта', second:'Трицепс, верх трапеции',
-    note:'Не разгибай полностью локти и не касайся стоек — вес должен быть на весу. При полном опускании теряется полезная нагрузка, как и при выпрямлении локтей: нагрузка уходит из целевой мышцы в сустав.'
-  },
-  'latraise-panatta': {
-    name:'Отведение плеча Panatta (средняя дельта)',
-    main:'Средняя дельта', second:'Передняя дельта, задняя дельта',
-    note:'Следи за паузой вверху и негативом. И за положением тела — легко сместить нагрузку на другую дельту.'
-  },
-  'french-panatta': {
-    name:'Французский жим Panatta · узкий хват',
-    main:'Трицепс', second:'Локтевая мышца',
-    note:'Узкий хват хорошо пробивает трицепс. И снова главное — техника. Опускаю полностью, выжидаю секундную паузу и со взрывом делаю подъём. На тяжёлом подходе — без паузы, чтобы не убить локти.'
-  },
-  'tricep-panatta': {
-    name:'Трицепс Panatta',
-    main:'Трицепс', second:'Локтевая мышца',
-    note:'Держи корпус крепко и сядь на ту высоту, при которой локти будут намертво прижаты. И помни: тут дикая изоляция.'
-  },
-  'abs-panatta': {
-    name:'Пресс Panatta',
-    main:'Прямая мышца живота', second:'Косые мышцы живота',
-    note:''
-  },
-  'tbar': {
-    name:'Тяга Т-грифа',
-    main:'Широчайшие, ромбовидные, трапециевидные, подостная, большая круглая, малая круглая', second:'Бицепс, задняя дельта, разгибатели спины, большая грудная',
-    note:'Силовая база спины — все силы должны уходить именно сюда. Техника безумно важна: не можешь сделать вес чисто — убавляй. Разминочный вес делай с идеальной техникой: растяжение, пауза, взрыв, контроль лопаток в статике. Тяни не руками, а спиной: сведи лопатки, мысленно поставь акцент в локтях и тяни локтями — руки просто крюки для веса.'
-  },
-  'xrow': {
-    name:'Х-тяга Panatta',
-    main:'Широчайшие, круглые мышцы спины', second:'Ромбовидные, трапециевидные, задняя дельта, бицепс',
-    note:'Когда подаёшь вес вверх — растягивай мышцу, а после взрывного опускания лови секундную паузу с фиксацией.'
-  },
-  'hrow': {
-    name:'Горизонтальная тяга с подвижными рукоятками',
-    main:'Широчайшие, ромбовидные', second:'Трапециевидные, бицепс, задняя дельта',
-    note:'Следи за техникой, делай паузы и растяжения. Для максимального растяжения можно работать по одной руке.'
-  },
-  'pullover': {
-    name:'Пуловер Technogym',
-    main:'Широчайшие', second:'Большая грудная, трицепс, зубчатые, пресс',
-    note:'Для полной изоляции широчайших ставь руки поверх длинных плоских упоров: нагрузка продавливается упором локтей и стабилизацией трицепса (поэтому он ощущается). Пресс в хорошем напряжении из-за стабилизации корпуса. Выполняй максимально подконтрольно, с негативной фазой — без резких бросаний веса.'
-  },
-  'legcurl': {
-    name:'Сгибания ног',
-    main:'Бицепс бедра', second:'Икроножные, подколенные сухожилия',
-    note:'Подконтрольные подходы + пауза. Взрывные подходы здесь не рекомендую: нагрузка на колени серьёзная, а колени нужны ещё и для старости…'
-  },
-  'legext': {
-    name:'Разгибания ног',
-    main:'Квадрицепс', second:'—',
-    note:'Сядь удобно, отрегулируй тренажёр, нижнюю опору подставь под свою длину ног. При выполнении тяги носки на себя, пауза в верхней точке, вес опускай подконтрольно — не бросай, лучше удерживай без касания, чтобы нагрузка сохранялась.'
-  },
-  'kolodec': {
-    name:'Тренажёр присед-«Колодец»',
-    main:'Квадрицепс, ягодичные', second:'Бицепс бедра, приводящие',
-    note:'Колени держи развёрнутыми по уровню стоп — внутрь не сводить.'
-  },
-  'incline': {
-    name:'Подъём на бицепс сидя 45°',
-    main:'Бицепс', second:'Плечелучевая, плечевая',
-    note:'Самое главное — разгибай локоть до конца и отпускай вес полностью, поднимай подконтрольно или взрывным, на тяжёлых подходах держи лёгкий негатив. Если читинговать и держать локоть под углом — теряется весь смысл упражнения. Начинаю сразу с развёрнутой кисти, без молоткового хвата.'
-  },
-  'bicep-panatta': {
-    name:'Бицепс Panatta',
-    main:'Бицепс', second:'Плечелучевая, плечевая',
-    note:'Вертикальное положение подушки: встань перед ней и делай подконтрольно-взрывные повторения, уперев локоть намертво в подушку. Чтобы проще держать корпус — чуть отшагни вперёд и держи упор спиной в подушку. Горизонтальное положение подушки даст акцент на брахиалис: подходишь со стороны сиденья, подъёмы сидя или полусидя с согнутыми ногами, положение рукоятки — 2–3. Для максимального пробивного эффекта — по одной руке.'
-  }
-};
-const ATLAS_TIP = 'Техника выше веса. Увеличивается вес тогда, когда сможешь с идеальной техникой сделать 12 повторений.';
+   Данные приходят с воркера (payload.atlas). Фото-карточки
+   подхватываются сами: <slug>-1.jpg — выполнение, <slug>-2.jpg —
+   карта мышц. Пробуются оба варианта папки — «Atlas/» и «atlas/»
+   (на GitHub Pages путь регистрозависим!). Нет файла — карточка
+   просто не показывается, блок не ломается. */
 function atlasFig(slug, n, cap, alt) {
   return `<figure><img src="Atlas/${slug}-${n}.jpg" loading="lazy" alt="${escA(alt)}" data-fb="atlas/${slug}-${n}.jpg" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.removeAttribute('data-fb')}else{this.closest('figure').remove()}"><figcaption>${cap}</figcaption></figure>`;
 }
@@ -1659,39 +1426,12 @@ function atlasHTML(slug) {
       <p class="am-main"><b>Основные:</b> ${escA(a.main)}</p>
       <p class="am-sec"><b>Вторичные:</b> ${escA(a.second)}</p>
       ${a.note ? `<p class="am-note">${escA(a.note)}</p>` : ''}
-      <p class="am-tip"><i class="ri-shield-check-line"></i> ${ATLAS_TIP}</p>
+      <p class="am-tip"><i class="ri-shield-check-line"></i> ${escA(ATLAS_TIP)}</p>
     </div>
   </div>`;
 }
 
-/* ================= КАЛЬКУЛЯТОР 1ПМ ================= */
-const CALC_SPECS = {
-  push: {
-    title:'ЖИМ ЛЁЖА — РАСЧЁТ ОТ 1ПМ',
-    rows:[
-      {i:0, label:'01 · Гриф × 10',                        pct:0,  fixed:'Гриф'},
-      {i:1, label:'02 · × 5 — взрыв',                      pct:57},
-      {i:2, label:'03 · × 2 — взрыв',                      pct:79},
-      {i:3, label:'04 · × 1 — пауза 2 сек + взрыв',        pct:100},
-      {i:4, label:'05 · × 3 — пауза 1 сек + взрыв',        pct:87},
-      {i:5, label:'06 · × 3 — пауза 1 сек + взрыв',        pct:87},
-      {i:6, label:'07 · × 3 — обычный темп',               pct:87},
-      {i:7, label:'08 · × 3 — обычный темп, по состоянию', pct:87},
-      {i:8, label:'09 · × 4 — узкий хват',                 pct:79},
-      {i:9, label:'10 · × 5 — узкий / Ларсон',             pct:74}
-    ]
-  },
-  pull: {
-    title:'ТЯГА Т-ГРИФА — РАСЧЁТ ОТ 1ПМ',
-    rows:[
-      {i:0, label:'01 · × 12 — техника: паузы + растяжение', pct:0,  fixed:'20'},
-      {i:1, label:'02 · × 6 — техника',                      pct:45},
-      {i:2, label:'03 · × 3 — взрывной подъём',              pct:67},
-      {i:3, label:'04 · × 4–6 — взрыв, до отказа',           pct:88},
-      {i:4, label:'05 · × 8 — взрыв + негатив, до отказа',   pct:45}
-    ]
-  }
-};
+/* ================= КАЛЬКУЛЯТОР 1ПМ (данные с воркера) ================= */
 function calcWeight(one, pct) {
   let w = Math.floor(one * pct / 100 / 2.5) * 2.5;
   if (w < 2.5) w = 2.5;
@@ -1701,7 +1441,7 @@ function calcHTML(pid) {
   const s = CALC_SPECS[pid];
   const ph = pid === 'push' ? '115' : '90';
   return `<div class="calc" id="calc-${pid}">
-    <div class="calc-title"><i class="ri-calculator-line"></i>${s.title}</div>
+    <div class="calc-title"><i class="ri-calculator-line"></i>${escA(s.title)}</div>
     <div class="calc-warn">⚠️ <b>ВСЁ СЧИТАЕТСЯ ТОЛЬКО ДЛЯ ЧИСТОЙ ТЕХНИКИ.</b> 30 кг в идеальной технике лучше, чем 60 в кривой. 1ПМ — тот, что поднял без читинга, без «половины повтора на страховке». Программа считает от честной цифры — врать тут можно только себе.</div>
     <div class="calc-in-row">
       <div>
@@ -1765,10 +1505,10 @@ function panelHTML(p) {
     <header class="panel-head">
       <div>
         <span class="ph-k mono">ПРОГРАММА /${p.num} · ВЕС В КГ</span>
-        <h3 class="ph-name">${p.full}</h3>
-        <p class="ph-tags">${p.tags}</p>
+        <h3 class="ph-name">${escA(p.full)}</h3>
+        <p class="ph-tags">${escA(p.tags)}</p>
       </div>
-      <span class="ph-r"><i class="ri-stack-line"></i>${p.meta}</span>
+      <span class="ph-r"><i class="ri-stack-line"></i>${escA(p.meta)}</span>
     </header>
     <div class="p-body">
       <div class="start-bar">
@@ -1848,7 +1588,7 @@ function updateCustomCard() {
     : 'создай тренировку под себя';
 }
 
- $('#panels').innerHTML = PROGRAMS.map(panelHTML).join('') + customPanelHTML();
+updateCustomCard(); /* карточка «Свой план» — локальные данные, обновляется сразу */
 
 function openPanelEl(panel) {
   panel.classList.add('open');
@@ -1869,7 +1609,10 @@ function refreshPanelHeight(el) {
     return;
   }
   const panel = document.getElementById('panel-' + card.dataset.target);
-  if (!panel) return;
+  if (!panel) {
+    if (!window.__programsLoaded) toast('Программы ещё загружаются — секунду.', 'ri-loader-4-line');
+    return;
+  }
   const wasOpen = panel.classList.contains('open');
   $$('.panel.open').forEach(p => closePanelEl(p));
   $$('.pcard.active').forEach(c => c.classList.remove('active'));
@@ -1994,34 +1737,30 @@ function applyStore() {
   });
   ['push', 'pull', 'legs', 'custom'].forEach(updateProgress);
 }
-try {
-  bindRows($('#panels'));
-  bindEq($('#panels'));
-  ['push', 'pull', 'legs', 'custom'].forEach(updateProgress);
-  updateCustomCard();
-} catch (e) { document.documentElement.classList.add('nojs-ok'); }
 
-/* сброс дня (тренажёры не трогает) */
- $$('[data-reset]').forEach(b => b.addEventListener('click', () => {
-  if (b.dataset.arm !== '1') {
-    b.dataset.arm = '1'; b.classList.add('arm'); b.textContent = 'ТОЧНО СБРОСИТЬ?';
-    setTimeout(() => { b.dataset.arm = ''; b.classList.remove('arm'); b.textContent = 'СБРОС ДНЯ'; }, 2600);
-    return;
-  }
-  const pid = b.dataset.reset;
-  Object.keys(store).forEach(k => { if (k.startsWith(pid + ':') && !k.includes(':eq')) delete store[k]; });
-  saveStore();
-  const s = loadSess(); delete s[pid]; saveSess(s);
-  lastStats = null;
-  $$('#panel-' + pid + ' .set').forEach(row => {
-    $('.ck', row).checked = false; row.classList.remove('done');
-    $('.in-w', row).value = row.dataset.w0; $('.in-r', row).value = row.dataset.r0;
-    $('.s-note-in', row).value = '';
-    fitInp($('.in-w', row)); fitInp($('.in-r', row));
-  });
-  updateProgress(pid);
-  toast('День сброшен — чистый лист.', 'ri-restart-line');
-}));
+/* сброс дня (тренажёры не трогает) — кнопки живут в панелях, биндим при рендере */
+function bindResetButtons() {
+  $$('[data-reset]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.arm !== '1') {
+      b.dataset.arm = '1'; b.classList.add('arm'); b.textContent = 'ТОЧНО СБРОСИТЬ?';
+      setTimeout(() => { b.dataset.arm = ''; b.classList.remove('arm'); b.textContent = 'СБРОС ДНЯ'; }, 2600);
+      return;
+    }
+    const pid = b.dataset.reset;
+    Object.keys(store).forEach(k => { if (k.startsWith(pid + ':') && !k.includes(':eq')) delete store[k]; });
+    saveStore();
+    const s = loadSess(); delete s[pid]; saveSess(s);
+    lastStats = null;
+    $$('#panel-' + pid + ' .set').forEach(row => {
+      $('.ck', row).checked = false; row.classList.remove('done');
+      $('.in-w', row).value = row.dataset.w0; $('.in-r', row).value = row.dataset.r0;
+      $('.s-note-in', row).value = '';
+      fitInp($('.in-w', row)); fitInp($('.in-r', row));
+    });
+    updateProgress(pid);
+    toast('День сброшен — чистый лист.', 'ri-restart-line');
+  }));
+}
 
 /* ================= КАЛЬКУЛЯТОР: логика ================= */
 function calcRender(pid) {
@@ -2030,16 +1769,17 @@ function calcRender(pid) {
   if (!inp || !box) return;
   const one = parseFloat(String(inp.value).replace(',', '.'));
   const spec = CALC_SPECS[pid];
+  if (!spec) return;
   if (!one || one < 20 || one > 500) {
     box.innerHTML = spec.rows.map(r =>
-      `<div class="calc-row"><span>${r.label}</span><span><span class="pct">${r.pct ? r.pct + '%' : 'фикс'}</span> <b>—</b></span></div>`).join('');
+      `<div class="calc-row"><span>${escA(r.label)}</span><span><span class="pct">${r.pct ? r.pct + '%' : 'фикс'}</span> <b>—</b></span></div>`).join('');
     return;
   }
   box.innerHTML = spec.rows.map(r => {
     let w;
     if (r.pct) w = calcWeight(one, r.pct) + ' кг';
     else w = r.fixed + (/[0-9]/.test(r.fixed) ? ' кг' : '');
-    return `<div class="calc-row"><span>${r.label}</span><span><span class="pct">${r.pct ? r.pct + '%' : 'фикс'}</span> <b>${escA(w)}</b></span></div>`;
+    return `<div class="calc-row"><span>${escA(r.label)}</span><span><span class="pct">${r.pct ? r.pct + '%' : 'фикс'}</span> <b>${escA(w)}</b></span></div>`;
   }).join('');
 }
 function calcApply(pid) {
@@ -2064,7 +1804,7 @@ function calcApply(pid) {
   ['push', 'pull'].forEach(updateProgress);
   toast('Веса подставлены. Прогресс — только чистая техника.', 'ri-check-double-line');
 }
-(function initCalc() {
+function initCalc() {
   Object.keys(CALC_SPECS).forEach(pid => {
     const btn = document.querySelector('[data-calc="' + pid + '"]');
     if (!btn) return;
@@ -2079,7 +1819,7 @@ function calcApply(pid) {
     document.getElementById('calcApply-' + pid).addEventListener('click', () => calcApply(pid));
     if (inp.value) calcRender(pid);
   });
-})();
+}
 
 /* ================= СТАТИСТИКА ================= */
 function fmtDur(s) {
@@ -2912,6 +2652,91 @@ const BOT_API = 'https://ares-gym-bot.maks222berg.workers.dev';
 const TG_SESSION = { mode: null, initData: null, name: null, blocks: {} };
 window.ARES_BLOCKS = {};
 
+/* ================= КОНТЕНТ ПРОГРАММ: кэш + загрузка с воркера =================
+   Контент приходит с /api/programs только после проверки доступа
+   (token/initData). Кэш в localStorage: повторные входы — мгновенно,
+   офлайн работает. Если версия у воркера новее — перерисовываем. */
+const PROG_LS_KEY = 'ARES_PROG_V1';
+let currentProgV = null;
+function loadCachedPrograms() {
+  try {
+    const raw = LS.get(PROG_LS_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    if (o && o.v != null && o.payload && Array.isArray(o.payload.programs) && o.payload.programs.length) return o;
+  } catch (e) {}
+  return null;
+}
+function syncCards() {
+  PROGRAMS.forEach(p => {
+    const card = document.querySelector('.pcard[data-target="' + p.id + '"]');
+    if (!card) return;
+    const t = $('.pc-tags', card), m = $('.pc-meta', card);
+    if (t) t.textContent = p.tags || '';
+    if (m) m.textContent = p.meta || '';
+  });
+}
+function renderPrograms() {
+  $('#panels').innerHTML = PROGRAMS.map(panelHTML).join('') + customPanelHTML();
+  syncCards();
+  try {
+    bindRows($('#panels'));
+    bindEq($('#panels'));
+    ['push', 'pull', 'legs', 'custom'].forEach(updateProgress);
+    initCalc();
+  } catch (e) { document.documentElement.classList.add('nojs-ok'); }
+  bindResetButtons();
+}
+function showProgSkeleton() {
+  $('#panels').innerHTML =
+    '<div class="prog-skel" id="progSkel"><i class="ri-dumbbell-line"></i> ПРОГРАММЫ КЛУБА ЗАГРУЖАЮТСЯ<span class="sk-bar"></span></div>' +
+    customPanelHTML();
+  try {
+    bindRows($('#panel-custom'));
+    bindEq($('#panel-custom'));
+    updateProgress('custom');
+  } catch (e) {}
+}
+function applyPrograms(payload) {
+  if (!payload || !Array.isArray(payload.programs) || !payload.programs.length) return;
+  if (currentProgV === payload.v) return;
+  /* идёт тренировка — не перерисовываем под ногами: новое применится при следующем входе */
+  if (gym) return;
+  currentProgV = payload.v;
+  PROGRAMS = payload.programs || [];
+  ATLAS = payload.atlas || {};
+  ATLAS_TIP = payload.atlasTip || '';
+  CALC_SPECS = payload.calc || {};
+  window.__programsLoaded = true;
+  renderPrograms();
+}
+async function fetchPrograms() {
+  const pay = {};
+  if (TG_SESSION.mode === 'tg' && TG_SESSION.initData) pay.initData = TG_SESSION.initData;
+  else { const t = localStorage.getItem('ARES_TOKEN_V1'); if (!t) return; pay.token = t; }
+  try {
+    const r = await fetch(BOT_API + '/api/programs', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pay) });
+    if (!r.ok) return;
+    const d = await r.json().catch(() => ({}));
+    if (d && d.ok && d.payload && Array.isArray(d.payload.programs) && d.payload.programs.length) {
+      try { LS.set(PROG_LS_KEY, JSON.stringify({ v: d.payload.v, payload: d.payload })); } catch (e) {}
+      applyPrograms(d.payload);
+    }
+  } catch (e) {}
+}
+(function initPrograms() {
+  const cached = loadCachedPrograms();
+  if (cached) applyPrograms(cached.payload);
+  else showProgSkeleton();
+  setTimeout(() => {
+    if (!window.__programsLoaded) {
+      const sk = document.getElementById('progSkel');
+      if (sk) sk.innerHTML = '<i class="ri-wifi-off-line"></i> НЕ ЗАГРУЗИЛОСЬ — ПРОВЕРЬ СВЯЗЬ И ПЕРЕЗАЙДИ';
+    }
+  }, 10000);
+})();
+
 (function initGate() {
   const wa = window.Telegram && window.Telegram.WebApp;
   if (wa) { try { wa.ready(); wa.expand(); } catch (e) {} }
@@ -3021,6 +2846,7 @@ window.ARES_BLOCKS = {};
     TG_SESSION.name = d.user && d.user.name;
     applyBlocks(d.blocks || {});
     startHeartbeat(initData);
+    fetchPrograms(); /* контент программ — только после подтверждённого доступа */
     return true;
   }
   function startHeartbeat(initData) {
@@ -3041,7 +2867,7 @@ window.ARES_BLOCKS = {};
     const initData = wa ? (wa.initData || '') : '';
     try {
       if (initData) {
-        /* v6.1: шлём устройство (userAgent + userAgentData) воркеру для /activity */
+        /* шлём устройство (userAgent + userAgentData) воркеру для /activity */
         let uad = null;
         try {
           if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues)
