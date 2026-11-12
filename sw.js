@@ -5,7 +5,7 @@
    нужно только при изменении логики самого sw.js или статики
    (app.js / bootstrap.js).
    ============================================================ */
-const VER = 'ares-v20';
+const VER = 'ares-v21';
 
 self.addEventListener('install', e => {
   e.waitUntil(
