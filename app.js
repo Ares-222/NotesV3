@@ -257,7 +257,7 @@ function panelHTML(p, isD) {
       : '<button class="gy-open" data-deload="on"><i class="ri-leaf-line"></i>РАЗГРУЗОЧНЫЙ ДЕНЬ</button>')
     : '';
   const dlNote = isD && DELOAD_NOTE
-    ? '<div class="p-note" style="margin-top:0"><i class="ri-leaf-line"></i><div><b>РАЗГРУЗКА:</b> ' + escA(DELOAD_NOTE) + ' Завершишь тренировку и закроешь отчёт — классика вернётся сама. Вернуть вручную — кнопкой «Вернуть классику».</div></div>'
+    ? '<div class="p-note" style="margin-top:0"><i class="ri-leaf-line"></i><div><b>РАЗГРУЗКА:</b> ' + escA(DELOAD_NOTE) + ' Веса разгрузки считаются от твоей классической раскладки: вёл классику — они уже подставлены под тебя, правь на месте. Закроешь отчёт — классика вернётся сама.</div></div>'
     : '';
   return `<div class="panel" id="panel-${p.id}"><div class="panel-in"><div class="panel-box" data-pid="${p.id}">
     <header class="panel-head">
@@ -521,6 +521,64 @@ function bindResetButtons() {
     updateProgress(pid);
     toast('День сброшен — чистый лист.', 'ri-restart-line');
   }));
+}
+
+/* ================= РАЗГРУЗКА ОТ ЛИЧНОЙ КЛАССИКИ =================
+   Веса разгрузки считаются от последней раскладки пользователя:
+   по каждому блоку берём его максимум из классики (что реально
+   вписано в трекере), масштабируем каждый подход разгрузки тем же
+   отношением, что в шаблоне (вес_разгрузки / максимум_классики),
+   округляем до блинов 2,5 кг. Нет личных данных — остаются веса
+   шаблона. Уже вписанные личные веса разгрузки не перетираем. */
+function tplBlockMax(sets) {
+  let m = 0;
+  (sets || []).forEach(s => { const v = parseNums(s.w); if (v && v > m) m = v; });
+  return m;
+}
+function userBlockMax(pid, bi) {
+  let m = 0;
+  const pre = pid + ':' + bi + ':';
+  Object.keys(store).forEach(k => {
+    if (k.indexOf(pre) !== 0 || k.endsWith(':eq')) return;
+    const st = store[k];
+    const v = (st && typeof st === 'object') ? parseNums(st.w) : null;
+    if (v && v > m) m = v;
+  });
+  return m;
+}
+function deloadFillFromClassic(pid) {
+  const d = DELOAD[pid];
+  const base = PROGRAMS.find(x => x.id === pid);
+  if (!d || !base) return 0;
+  const hasD = Object.keys(store).some(k =>
+    k.indexOf(pid + 'D:') === 0 && !k.endsWith(':eq') &&
+    store[k] && typeof store[k] === 'object' && store[k].w != null);
+  if (hasD) return 0;
+  let filled = 0;
+  d.blocks.forEach((db, bi) => {
+    const cb = base.blocks[bi];
+    if (!cb) return;
+    let cSets = cb.sets || [];
+    if (cb.variants) cSets = cSets.concat(cb.variants.a.sets || [], cb.variants.b.sets || []);
+    const tplMax = tplBlockMax(cSets);
+    const userMax = userBlockMax(pid, bi);
+    if (!tplMax || !userMax) return;
+    const fill = (sets, suffix) => (sets || []).forEach((s, si) => {
+      const v = parseNums(s.w);
+      if (!v) return;
+      const nw = Math.round(userMax * v / tplMax / 2.5) * 2.5;
+      const key = pid + 'D:' + bi + ':' + si + suffix;
+      store[key] = Object.assign({}, store[key] || {}, { w: String(nw) });
+      filled++;
+    });
+    if (db.variants) {
+      fill(db.variants.a.sets, ':a');
+      fill(db.variants.b.sets, ':b');
+    } else {
+      fill(db.sets, '');
+    }
+  });
+  return filled;
 }
 
 /* ================= КАЛЬКУЛЯТОР: логика ================= */
@@ -1088,7 +1146,10 @@ dataEl.addEventListener('click', e => { if (e.target === dataEl) closeData(); })
 
 /* ================= ГЛОБАЛЬНЫЕ КЛИКИ / ESC ================= */
 document.addEventListener('click', e => {
-  /* разгрузка: включить / вернуть классику вручную */
+  /* разгрузка: включить / вернуть классику вручную.
+     Включение: авто-подстановка весов от личной классики.
+     Ручной выход: чистим личные веса разгрузки — следующий расчёт
+     пойдёт от свежей классики. */
   const dl = e.target.closest('[data-deload]');
   if (dl) {
     const box = dl.closest('.panel-box');
@@ -1096,11 +1157,15 @@ document.addEventListener('click', e => {
     if (pid && DELOAD[pid]) {
       if (dl.dataset.deload === 'on') {
         store[pid + '::deload'] = true;
+        const auto = deloadFillFromClassic(pid);
         saveStore();
         renderPrograms();
-        toast('Разгрузка введена в программу. После закрытия отчёта классика вернётся сама.', 'ri-leaf-line');
+        toast(auto
+          ? 'Разгрузка введена — веса рассчитаны от твоей классики (' + auto + ' подх.). Правь на месте.'
+          : 'Разгрузка введена. После закрытия отчёта классика вернётся сама.', 'ri-leaf-line');
       } else {
         delete store[pid + '::deload'];
+        Object.keys(store).forEach(k => { if (k.indexOf(pid + 'D:') === 0) delete store[k]; });
         saveStore();
         renderPrograms();
         toast('Классика возвращена.', 'ri-arrow-go-back-line');
