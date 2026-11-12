@@ -2,9 +2,10 @@
    ARES GYM — service worker (network-first)
    Страницы тянутся по сети вперёд (кэш — офлайн-фолбэк):
    любые правки index.html подхватываются сами. VER поднимать
-   нужно только при изменении логики самого sw.js.
+   нужно только при изменении логики самого sw.js или статики
+   (app.js / bootstrap.js).
    ============================================================ */
-const VER = 'ares-v19';
+const VER = 'ares-v20';
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -47,7 +48,8 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  /* Статика (фото Atlas/, иконки, manifest): кэш вперёд + тихое фоновое обновление */
+  /* Статика (app.js, bootstrap.js, фото Atlas/, иконки, manifest):
+     кэш вперёд + тихое фоновое обновление */
   e.respondWith(
     caches.match(req).then(hit => {
       const netP = fetch(req).then(res => {
