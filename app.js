@@ -59,6 +59,7 @@ function toast(msg, icon = 'ri-information-line') {
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3600);
 }
 setTimeout(() => { const sp = $('#splash'); if (sp) { sp.classList.add('gone'); setTimeout(() => sp.remove(), 100); } }, 1900);
+
 /* ошибки картинок (capture — error не всплывает): фолбэк атласа Atlas/ → atlas/,
    удаление пустых карточек атласа и фото зала. Заменяет инлайн-onerror. */
 document.addEventListener('error', e => {
@@ -68,14 +69,17 @@ document.addEventListener('error', e => {
   if (el.dataset.atlasfig != null) { const f = el.closest('figure'); if (f) f.remove(); return; }
   if (el.dataset.rem != null) el.remove();
 }, true);
+
 /* ================= ПРОГРАММЫ =================
-   Контент (программы, проценты 1ПМ, атлас) больше НЕ зашит в html:
-   он приходит с воркера (/api/programs) только после проверки доступа
+   Контент (программы, проценты 1ПМ, атлас, разгрузка) больше НЕ зашит в html:
+   приходит с воркера (/api/programs) только после проверки доступа
    и кэшируется в localStorage. До загрузки — скелетон. */
 let PROGRAMS = [];
 let ATLAS = {};
 let ATLAS_TIP = '';
 let CALC_SPECS = {};
+let DELOAD = {};
+let DELOAD_NOTE = '';
 
 /* ================= ДАННЫЕ ================= */
 const TKEY = 'ARES_GYM_TRACKER_V1';
@@ -140,15 +144,22 @@ function getProg(pid) {
       tags:'Своя программа', meta:''
     };
   }
-  return PROGRAMS.find(x => x.id === pid);
+  const base = PROGRAMS.find(x => x.id === pid);
+  if (!base) return base;
+  /* активная разгрузка: подменяем контент панели, id остаётся базовым —
+     галочки/зальный режим/отчёты работают как обычно, веса живут под ключами pidD: */
+  const d = DELOAD[pid];
+  if (d && store[pid + '::deload']) {
+    return Object.assign({}, base, { full: d.full || base.full, tags: d.tags || base.tags, meta: d.meta || base.meta, blocks: d.blocks || base.blocks });
+  }
+  return base;
 }
 
 /* ================= АТЛАС УПРАЖНЕНИЙ =================
    Данные приходят с воркера (payload.atlas). Фото-карточки
    подхватываются сами: <slug>-1.jpg — выполнение, <slug>-2.jpg —
-   карта мышц. Пробуются оба варианта папки — «Atlas/» и «atlas/»
-   (на GitHub Pages путь регистрозависим!). Нет файла — карточка
-   просто не показывается, блок не ломается. */
+   карта мышц. Фолбэк Atlas/ → atlas/ ловит глобальный слушатель
+   ошибок картинок (data-fb). Нет файла — карточка исчезает. */
 function atlasFig(slug, n, cap, alt) {
   return `<figure><img src="Atlas/${slug}-${n}.jpg" loading="lazy" alt="${escA(alt)}" data-fb="atlas/${slug}-${n}.jpg" data-atlasfig="1"><figcaption>${cap}</figcaption></figure>`;
 }
@@ -237,12 +248,21 @@ function blockHTML(b, i, pid) {
     ${b.sets.map((s, si) => setRow(Object.assign({}, s, { eq0: eq }), si, pid, i, null, b.name, rest)).join('')}
   </section>`;
 }
-function panelHTML(p) {
-  const hasCalc = !!CALC_SPECS[p.id];
+function panelHTML(p, isD) {
+  const hasCalc = !!CALC_SPECS[p.id] && !isD; /* в разгрузке калькулятор не показываем: веса фиксированные */
+  const rp = isD ? p.id + 'D' : p.id; /* ключи хранения: pushD:/pullD: — классика не затирается */
+  const dlBtn = DELOAD[p.id]
+    ? (isD
+      ? '<button class="gy-open" data-deload="off"><i class="ri-arrow-go-back-line"></i>ВЕРНУТЬ КЛАССИКУ</button>'
+      : '<button class="gy-open" data-deload="on"><i class="ri-leaf-line"></i>РАЗГРУЗОЧНЫЙ ДЕНЬ</button>')
+    : '';
+  const dlNote = isD && DELOAD_NOTE
+    ? '<div class="p-note" style="margin-top:0"><i class="ri-leaf-line"></i><div><b>РАЗГРУЗКА:</b> ' + escA(DELOAD_NOTE) + ' Завершишь тренировку и закроешь отчёт — классика вернётся сама. Вернуть вручную — кнопкой «Вернуть классику».</div></div>'
+    : '';
   return `<div class="panel" id="panel-${p.id}"><div class="panel-in"><div class="panel-box" data-pid="${p.id}">
     <header class="panel-head">
       <div>
-        <span class="ph-k mono">ПРОГРАММА /${p.num} · ВЕС В КГ</span>
+        <span class="ph-k mono">ПРОГРАММА /${p.num} · ВЕС В КГ${isD ? ' · РАЗГРУЗКА' : ''}</span>
         <h3 class="ph-name">${escA(p.full)}</h3>
         <p class="ph-tags">${escA(p.tags)}</p>
       </div>
@@ -252,10 +272,12 @@ function panelHTML(p) {
       <div class="start-bar">
         <button class="btn-start" data-gym="${p.id}"><i class="ri-play-fill"></i>НАЧАТЬ ТРЕНИРОВКУ</button>
         ${hasCalc ? '<button class="gy-open" data-calc="' + p.id + '"><i class="ri-calculator-line"></i>РАСЧЁТ ОТ 1ПМ</button>' : ''}
+        ${dlBtn}
         <span class="sb-hint"><b>КАК РАБОТАЕТ:</b> подход → «ВЫПОЛНЕНО» → отдых по упражнению (тап — пропуск) → следующий. Цифры, заметки и тренажёр правятся на месте.</span>
       </div>
+      ${dlNote}
       ${hasCalc ? calcHTML(p.id) : ''}
-      ${p.blocks.map((b, i) => blockHTML(b, i, p.id)).join('')}
+      ${p.blocks.map((b, i) => blockHTML(b, i, rp)).join('')}
       <div class="track-bar">
         <span class="tb-label">ВЫПОЛНЕНО <span class="tb-count">0/0</span></span>
         <span class="tb-track"><i class="tb-fill"></i></span>
@@ -340,7 +362,7 @@ function refreshPanelHeight(el) {
   const panel = el && el.closest ? el.closest('.panel') : null;
   if (panel && panel.classList.contains('open')) panel.style.maxHeight = panel.scrollHeight + 'px';
 }
- $$('.pcard').forEach(card => card.addEventListener('click', () => {
+$$('.pcard').forEach(card => card.addEventListener('click', () => {
   const blk = (window.ARES_BLOCKS || {})[card.dataset.target];
   if (blk && (!blk.until || blk.until > Date.now())) {
     if (window.aresShowBlock) window.aresShowBlock(card.dataset.target);
@@ -417,11 +439,11 @@ function setDoneRow(row, d) {
   ck.checked = d; row.classList.toggle('done', d);
   store[row.dataset.k] = Object.assign({}, store[row.dataset.k], { d });
   saveStore();
-  updateProgress(row.dataset.k.split(':')[0]);
+  updateProgress(row.dataset.k.split(':')[0].replace(/D$/, '')); /* pushD: → панель panel-push */
 }
 function bindRows(root) {
   $$('.set', root).forEach(row => {
-    const pid = row.dataset.k.split(':')[0];
+    const pid = row.dataset.k.split(':')[0].replace(/D$/, '');
     const st = store[row.dataset.k] || {};
     const w = $('.in-w', row), r = $('.in-r', row), n = $('.s-note-in', row), ck = $('.ck', row);
     if (st.w != null) w.value = st.w;
@@ -476,7 +498,7 @@ function applyStore() {
   ['push', 'pull', 'legs', 'custom'].forEach(updateProgress);
 }
 
-/* сброс дня (тренажёры не трогает) — кнопки живут в панелях, биндим при рендере */
+/* сброс дня (тренажёры не трогает) — чистит активный вариант: pushD: в разгрузке, push: в классике */
 function bindResetButtons() {
   $$('[data-reset]').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.arm !== '1') {
@@ -485,7 +507,8 @@ function bindResetButtons() {
       return;
     }
     const pid = b.dataset.reset;
-    Object.keys(store).forEach(k => { if (k.startsWith(pid + ':') && !k.includes(':eq')) delete store[k]; });
+    const rp = (DELOAD[pid] && store[pid + '::deload']) ? pid + 'D' : pid;
+    Object.keys(store).forEach(k => { if (k.startsWith(rp + ':') && !k.includes(':eq')) delete store[k]; });
     saveStore();
     const s = loadSess(); delete s[pid]; saveSess(s);
     lastStats = null;
@@ -606,7 +629,7 @@ function editedEq(row) {
 
 /* ================= ОТЧЁТ ================= */
 function buildReport(pid) {
-  const p = getProg(pid);
+  const p = getProg(pid); /* в разгрузке вернёт разгрузочный вариант: заголовок и веса оттуда */
   const rows = listRows(pid);
   const now = new Date();
   const when = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
@@ -659,7 +682,19 @@ function openReport(pid) {
   $('#reportText').textContent = buildReport(pid);
   reportEl.classList.add('open'); refreshLock();
 }
-function closeReport() { reportEl.classList.remove('open'); refreshLock(); }
+function closeReport() {
+  reportEl.classList.remove('open'); refreshLock();
+  /* разгрузка отработана: отчёт показан/отправлен → вернуть классику */
+  const pid = reportPid;
+  reportPid = null;
+  if (pid && pid !== 'custom' && DELOAD[pid] && store[pid + '::deload']) {
+    delete store[pid + '::deload'];
+    Object.keys(store).forEach(k => { if (k.indexOf(pid + 'D:') === 0) delete store[k]; });
+    saveStore();
+    renderPrograms();
+    toast('Разгрузка закрыта — вернулась классика.', 'ri-arrow-go-back-line');
+  }
+}
  $('#repClose').addEventListener('click', closeReport);
  $('#repClose2').addEventListener('click', closeReport);
 reportEl.addEventListener('click', e => { if (e.target === reportEl) closeReport(); });
@@ -709,7 +744,7 @@ function filterRows(all, choice) {
   return all.filter(r => !r.dataset.v || r.dataset.g.endsWith(choice));
 }
 function openGym(pid) {
-  const p = getProg(pid); if (!p) return;
+  const p = getProg(pid); if (!p) return; /* в разгрузке p — разгрузочный вариант */
   const panel = document.getElementById('panel-' + pid); if (!panel) return;
   const all = $$('.set', panel);
   const hasV = all.some(r => r.dataset.v);
@@ -1053,6 +1088,26 @@ dataEl.addEventListener('click', e => { if (e.target === dataEl) closeData(); })
 
 /* ================= ГЛОБАЛЬНЫЕ КЛИКИ / ESC ================= */
 document.addEventListener('click', e => {
+  /* разгрузка: включить / вернуть классику вручную */
+  const dl = e.target.closest('[data-deload]');
+  if (dl) {
+    const box = dl.closest('.panel-box');
+    const pid = box ? box.dataset.pid : null;
+    if (pid && DELOAD[pid]) {
+      if (dl.dataset.deload === 'on') {
+        store[pid + '::deload'] = true;
+        saveStore();
+        renderPrograms();
+        toast('Разгрузка введена в программу. После закрытия отчёта классика вернётся сама.', 'ri-leaf-line');
+      } else {
+        delete store[pid + '::deload'];
+        saveStore();
+        renderPrograms();
+        toast('Классика возвращена.', 'ri-arrow-go-back-line');
+      }
+    }
+    return;
+  }
   const pe = e.target.closest('[data-planedit]');
   if (pe) { openBuilder(); return; }
   const g = e.target.closest('[data-gym]');
@@ -1100,7 +1155,7 @@ addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), 
   $('#burger').setAttribute('aria-expanded', document.body.classList.contains('menu-open'));
   refreshLock();
 });
- $$('.mmenu a, .mmenu .m-close').forEach(el =>
+$$('.mmenu a, .mmenu .m-close').forEach(el =>
   el.addEventListener('click', () => { document.body.classList.remove('menu-open'); refreshLock(); }));
 
 if (HAS_IO) {
@@ -1211,7 +1266,7 @@ function copyText(text, label) {
     ta.remove();
   }
 }
- $$('.copy-btn').forEach(b => b.addEventListener('click', () => copyText(b.dataset.copy, b.dataset.copy)));
+$$('.copy-btn').forEach(b => b.addEventListener('click', () => copyText(b.dataset.copy, b.dataset.copy)));
 
  $('#toTop').addEventListener('click', () => scrollTo({ top: 0, behavior: PRM ? 'auto' : 'smooth' }));
 
@@ -1241,7 +1296,7 @@ function wrapText(x, text, font, maxW) {
 }
 async function renderCardJPEG(pid) {
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
-  const p = getProg(pid);
+  const p = getProg(pid); /* в разгрузке — разгрузочный заголовок и веса */
   const rows = listRows(pid);
   let done = 0; rows.forEach(r => { if ($('.ck', r).checked) done++; });
   const ton = computeTonnage(pid);
@@ -1415,7 +1470,7 @@ function syncCards() {
   });
 }
 function renderPrograms() {
-  $('#panels').innerHTML = PROGRAMS.map(panelHTML).join('') + customPanelHTML();
+  $('#panels').innerHTML = PROGRAMS.map(x => panelHTML(getProg(x.id), !!(DELOAD[x.id] && store[x.id + '::deload']))).join('') + customPanelHTML();
   syncCards();
   try {
     bindRows($('#panels'));
@@ -1445,6 +1500,8 @@ function applyPrograms(payload) {
   ATLAS = payload.atlas || {};
   ATLAS_TIP = payload.atlasTip || '';
   CALC_SPECS = payload.calc || {};
+  DELOAD = payload.deload || {};
+  DELOAD_NOTE = payload.deloadNote || '';
   window.__programsLoaded = true;
   renderPrograms();
 }
